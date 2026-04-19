@@ -1,0 +1,44 @@
+---
+import Nav from './Nav.astro';
+---
+<header class="hero" id="hero">
+  <Nav />
+
+  <div class="hero__open" aria-hidden="true">OPEN</div>
+
+  <div class="hero__cactus" aria-hidden="true">
+    <svg viewBox="0 0 100 140" xmlns="http://www.w3.org/2000/svg">
+      <path class="c-body" d="M38 128 L38 40 Q38 22 50 22 Q62 22 62 40 L62 128 Z" />
+      <path class="c-body" d="M38 72 L26 72 Q16 72 16 62 L16 46 Q16 40 22 40 Q28 40 28 46 L28 58" />
+      <path class="c-body" d="M62 82 L74 82 Q84 82 84 72 L84 54 Q84 48 78 48 Q72 48 72 54 L72 66" />
+      <path class="c-rib" d="M44 46 L44 120" />
+      <path class="c-rib" d="M56 46 L56 120" />
+      <path class="c-ground" d="M10 134 L90 134" />
+    </svg>
+  </div>
+
+  <div class="hero__bg" aria-hidden="true"></div>
+
+  <div class="hero__content">
+    <h1 class="hero__title reveal reveal--d1">
+      <span class="line1">Real Stone.</span>
+      <span class="line2">Real Hands.</span>
+      <span class="line3">Real Loud.</span>
+    </h1>
+
+    <div class="hero__bottom">
+      <p class="hero__sub reveal reveal--d2">
+        Handset turquoise, sterling silver, and attitude — cut from Kingman, Royston,
+        and Sleeping Beauty mines by Navajo and Zuni silversmiths we know by first name.
+      </p>
+      <div class="hero__meta reveal reveal--d2">
+        <span class="label">◆ Est. Gallup, NM</span>
+        <span>34.5361° N, 108.7422° W</span>
+      </div>
+      <a href="#" class="hero__cta reveal reveal--d3">
+        Shop the Drop
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+</header>

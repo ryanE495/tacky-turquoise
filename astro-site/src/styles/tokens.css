@@ -1,0 +1,30 @@
+:root {
+  /* Warm daylight palette — desert at noon, with neon script accents */
+  --c-bg:       #f2e8d5;
+  --c-bg-2:     #e8dcc2;
+  --c-bg-3:     #f9f2e3;
+  --c-ink:      #1e2a2d;
+  --c-ink-soft: #5a6568;
+  --c-line:     rgba(30, 42, 45, 0.12);
+
+  --c-turquoise:       #1d7a82;
+  --c-turquoise-light: #5ff4de;
+  --c-pink:            #e04a94;
+  --c-coral:           #e8623c;
+  --c-orange:          #e89540;
+  --c-gold:            #d4a332;
+  --c-lime:            #7fa83a;
+
+  --c-accent:   var(--c-coral);
+  --c-accent-2: var(--c-turquoise);
+  --c-cream:    #f9f2e3;
+
+  --f-display: "Monoton", serif;
+  --f-script:  "Sacramento", cursive;
+  --f-serif:   "DM Serif Display", Georgia, serif;
+  --f-body:    "Inter", system-ui, sans-serif;
+  --f-mono:    "JetBrains Mono", ui-monospace, monospace;
+
+  --glow-neon:      0 0 6px #5ff4de, 0 0 16px rgba(95,244,222,.7), 0 0 32px rgba(95,244,222,.4);
+  --glow-neon-pink: 0 0 6px #ff4fb8, 0 0 16px rgba(255,79,184,.65), 0 0 32px rgba(255,79,184,.35);
+}

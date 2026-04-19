@@ -1,0 +1,126 @@
+---
+// Client-side Tweaks panel — neon palette switcher + hero headline editor.
+// Persists to localStorage.
+---
+<div id="tweaks">
+  <h3>Tweaks</h3>
+  <div class="sub">Live · saves on reload</div>
+
+  <div class="group">
+    <label>Neon Palette</label>
+    <div class="swatches" id="swatches">
+      <div class="swatch active" data-k="classic" title="Classic neon">
+        <div style="background:#5ff4de"></div>
+        <div style="background:#ff4fb8"></div>
+        <div style="background:#a8f04a"></div>
+        <div style="background:#ffd84a"></div>
+      </div>
+      <div class="swatch" data-k="vegas" title="Vegas">
+        <div style="background:#ff3d7f"></div>
+        <div style="background:#ffd84a"></div>
+        <div style="background:#ff8a3d"></div>
+        <div style="background:#00e5ff"></div>
+      </div>
+      <div class="swatch" data-k="mojave" title="Mojave night">
+        <div style="background:#c88aff"></div>
+        <div style="background:#00e5ff"></div>
+        <div style="background:#ff8a3d"></div>
+        <div style="background:#ffd84a"></div>
+      </div>
+      <div class="swatch" data-k="synthwave" title="Synthwave">
+        <div style="background:#ff2ec8"></div>
+        <div style="background:#00f0ff"></div>
+        <div style="background:#7b2dff"></div>
+        <div style="background:#ff6b00"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="group">
+    <label>Hero Headline</label>
+    <input id="hl-input-a" type="text" placeholder="Line 1" style="margin-bottom:6px" />
+    <input id="hl-input-b" type="text" placeholder="Line 2" style="margin-bottom:6px" />
+    <input id="hl-input-c" type="text" placeholder="Line 3" />
+  </div>
+</div>
+
+<script>
+  type Palette = { cyan: string; pink: string; lime: string; gold: string };
+
+  const PALETTES: Record<string, Palette> = {
+    classic:   { cyan: '#5ff4de', pink: '#ff4fb8', lime: '#a8f04a', gold: '#ffd84a' },
+    vegas:     { cyan: '#00e5ff', pink: '#ff3d7f', lime: '#ff8a3d', gold: '#ffd84a' },
+    mojave:    { cyan: '#00e5ff', pink: '#c88aff', lime: '#ff8a3d', gold: '#ffd84a' },
+    synthwave: { cyan: '#00f0ff', pink: '#ff2ec8', lime: '#7b2dff', gold: '#ff6b00' },
+  };
+
+  const KEY = 'tt-tweaks';
+  type State = { palette: string; hlA: string; hlB: string; hlC: string };
+  const DEFAULT: State = { palette: 'classic', hlA: 'Real Stone.', hlB: 'Real Hands.', hlC: 'Real Loud.' };
+
+  function load(): State {
+    try { return { ...DEFAULT, ...JSON.parse(localStorage.getItem(KEY) || '{}') }; }
+    catch { return DEFAULT; }
+  }
+  function save(s: State) { localStorage.setItem(KEY, JSON.stringify(s)); }
+  const state = load();
+
+  function applyPalette(k: string) {
+    const p = PALETTES[k] ?? PALETTES.classic;
+    const r = document.documentElement.style;
+    r.setProperty('--c-cyan', p.cyan);
+    r.setProperty('--c-pink', p.pink);
+    r.setProperty('--c-lime', p.lime);
+    r.setProperty('--c-gold', p.gold);
+    r.setProperty('--c-accent', p.pink);
+    r.setProperty('--c-accent-2', p.cyan);
+
+    // recompute glow helpers
+    r.setProperty('--glow-cyan', `0 0 6px ${p.cyan}, 0 0 18px ${hexA(p.cyan, .65)}, 0 0 38px ${hexA(p.cyan, .35)}`);
+    r.setProperty('--glow-pink', `0 0 6px ${p.pink}, 0 0 18px ${hexA(p.pink, .6)}, 0 0 38px ${hexA(p.pink, .3)}`);
+    r.setProperty('--glow-lime', `0 0 6px ${p.lime}, 0 0 18px ${hexA(p.lime, .55)}, 0 0 38px ${hexA(p.lime, .25)}`);
+    r.setProperty('--glow-gold', `0 0 6px ${p.gold}, 0 0 18px ${hexA(p.gold, .55)}`);
+
+    document.querySelectorAll('#swatches .swatch').forEach((el) => {
+      el.classList.toggle('active', (el as HTMLElement).dataset.k === k);
+    });
+  }
+
+  function hexA(hex: string, a: number) {
+    const h = hex.replace('#', '');
+    const n = parseInt(h.length === 3 ? h.split('').map((c) => c + c).join('') : h, 16);
+    const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+    return `rgba(${r},${g},${b},${a})`;
+  }
+
+  function applyHeadline(a: string, b: string, c: string) {
+    const eA = document.getElementById('hl-a');
+    const eB = document.getElementById('hl-b');
+    const eC = document.getElementById('hl-c');
+    if (eA) eA.textContent = a;
+    if (eB) eB.textContent = b;
+    if (eC) eC.textContent = c;
+  }
+
+  applyPalette(state.palette);
+  applyHeadline(state.hlA, state.hlB, state.hlC);
+
+  const iA = document.getElementById('hl-input-a') as HTMLInputElement | null;
+  const iB = document.getElementById('hl-input-b') as HTMLInputElement | null;
+  const iC = document.getElementById('hl-input-c') as HTMLInputElement | null;
+  if (iA) iA.value = state.hlA;
+  if (iB) iB.value = state.hlB;
+  if (iC) iC.value = state.hlC;
+
+  document.querySelectorAll('#swatches .swatch').forEach((el) => {
+    el.addEventListener('click', () => {
+      const k = (el as HTMLElement).dataset.k || 'classic';
+      state.palette = k;
+      applyPalette(k);
+      save(state);
+    });
+  });
+  iA?.addEventListener('input', () => { state.hlA = iA.value; applyHeadline(state.hlA, state.hlB, state.hlC); save(state); });
+  iB?.addEventListener('input', () => { state.hlB = iB.value; applyHeadline(state.hlA, state.hlB, state.hlC); save(state); });
+  iC?.addEventListener('input', () => { state.hlC = iC.value; applyHeadline(state.hlA, state.hlB, state.hlC); save(state); });
+</script>

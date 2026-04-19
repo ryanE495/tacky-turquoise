@@ -1,0 +1,16 @@
+---
+const items = [
+  'Free US shipping on orders over $250',
+  'New drops every Tuesday',
+  'Navajo & Zuni artists',
+  'Real stone · never reconstituted',
+  'Made to order · 4–6 weeks',
+];
+// duplicate for seamless loop
+const loop = [...items, ...items];
+---
+<div class="marquee">
+  <div class="marquee__track">
+    {loop.map((t) => <span>{t}</span>)}
+  </div>
+</div>

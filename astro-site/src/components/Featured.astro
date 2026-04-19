@@ -1,0 +1,43 @@
+---
+import { placeholder } from '../lib/placeholder';
+
+const hero = placeholder('Featured · deluxe cuff + cluster ring', 1400, 1750, 'dark');
+const a = placeholder('Featured · everyday stack', 1200, 900, 'warm');
+const b = placeholder('Featured · bridal pearl + turquoise', 1200, 900, 'cream');
+---
+<section class="featured">
+  <div class="section-head">
+    <span class="num mono reveal">02 / Featured</span>
+    <h2 class="reveal">Three drops, one <em>stubborn</em> obsession.</h2>
+    <a href="#" class="link mono reveal">All collections →</a>
+  </div>
+  <div class="featured__grid">
+    <a class="ftr-card ftr-card--wide reveal" href="#">
+      <img src={hero} alt="" />
+      <div class="ftr-card__meta">
+        <div class="ftr-card__eyebrow">Heavyweights · 24 pieces</div>
+        <div class="ftr-card__title">The <em>Deluxe</em> Collection</div>
+        <p class="ftr-card__desc">
+          Statement cuffs and cluster rings set with high-grade Lone Mountain and
+          Number Eight spiderweb. Heirloom-intent, made to outlive us.
+        </p>
+      </div>
+    </a>
+    <div class="ftr-right">
+      <a class="ftr-card reveal reveal--d1" href="#">
+        <img src={a} alt="" />
+        <div class="ftr-card__meta">
+          <div class="ftr-card__eyebrow">Ready to ship · 41 pieces</div>
+          <div class="ftr-card__title">Everyday <em>Must-Haves</em></div>
+        </div>
+      </a>
+      <a class="ftr-card reveal reveal--d2" href="#">
+        <img src={b} alt="" />
+        <div class="ftr-card__meta">
+          <div class="ftr-card__eyebrow">Limited · 18 pieces</div>
+          <div class="ftr-card__title">Bridal, <em>Untamed</em></div>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>

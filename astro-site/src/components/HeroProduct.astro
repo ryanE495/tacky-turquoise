@@ -1,0 +1,51 @@
+---
+const PRODUCT_IMG = 'https://bswmrfxdadcmuyhmsagv.supabase.co/storage/v1/object/public/portfolio-images/test.jpeg';
+const thumbs = [0, 1, 2, 3];
+---
+<section class="hero-product">
+  <div class="section-head">
+    <span class="num">01 / The Necklace</span>
+    <h2 class="reveal">The <em>one</em></h2>
+    <a href="#" class="link reveal reveal--d1">Add to bag →</a>
+  </div>
+  <div class="hp__grid">
+    <div class="hp__gallery reveal">
+      <div class="hp__main"><img src={PRODUCT_IMG} alt="The Beaded Turquoise" id="hp-main" /></div>
+      <div class="hp__thumbs">
+        {thumbs.map((i) => (
+          <button class:list={["hp__thumb", i === 0 && "is-active"]} data-idx={i}>
+            <img src={PRODUCT_IMG} alt="" />
+          </button>
+        ))}
+      </div>
+    </div>
+    <div class="hp__details reveal reveal--d1">
+      <div class="hp__eyebrow">◆ Beaded · One of a kind</div>
+      <h3 class="hp__name">The Beaded <em>Turquoise</em></h3>
+      <p class="hp__lede">
+        Hand-strung Kingman turquoise, tumbled and drilled by the same hands every time.
+        Sterling end caps, waxed cotton core, signed and dated on the clasp.
+      </p>
+      <ul class="hp__specs">
+        <li><span>Stone</span><span>Kingman, AZ · grade AA</span></li>
+        <li><span>Length</span><span>18" / 20" / 24"</span></li>
+        <li><span>Bead</span><span>6–9mm, nugget cut</span></li>
+        <li><span>Clasp</span><span>Sterling hook + figure-8</span></li>
+        <li><span>Lead time</span><span>2–3 weeks</span></li>
+      </ul>
+      <div class="hp__actions">
+        <a href="#" class="hp__cta">Add to Bag <span class="arrow">→</span></a>
+        <a href="#" class="hp__second">See the family ↓</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll('.hp__thumb').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.hp__thumb').forEach((b) => b.classList.remove('is-active'));
+      btn.classList.add('is-active');
+    });
+  });
+</script>

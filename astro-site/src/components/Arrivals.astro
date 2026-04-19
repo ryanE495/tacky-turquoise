@@ -1,0 +1,27 @@
+---
+import { strands } from '../data/products';
+const PRODUCT_IMG = 'https://bswmrfxdadcmuyhmsagv.supabase.co/storage/v1/object/public/portfolio-images/test.jpeg';
+---
+<section class="arrivals">
+  <div class="section-head">
+    <span class="num">03 / Also Beaded</span>
+    <h2 class="reveal">Other <em>strands</em></h2>
+    <a href="#" class="link reveal reveal--d1">Shop all →</a>
+  </div>
+  <div class="arrivals__grid">
+    {strands.map((p) => (
+      <a href="#" class="prod reveal">
+        <div class="prod__img">
+          <img src={PRODUCT_IMG} alt={p.name} />
+          {p.tag && <span class:list={["prod__tag", p.tagHot && "prod__tag--hot"]}>{p.tag}</span>}
+          <span class="prod__quick">Quick add <span>+</span></span>
+        </div>
+        <div class="prod__row">
+          <span class="prod__name">{p.name}</span>
+          <span class="prod__price">View</span>
+        </div>
+        <div class="prod__artist">{p.variant}</div>
+      </a>
+    ))}
+  </div>
+</section>
