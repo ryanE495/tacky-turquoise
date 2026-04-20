@@ -407,6 +407,8 @@
 
 @media (max-width: 1024px) {
   .hero2__tagline { margin-top: 84px; }
+  /* Secondary "See what's next ↓" link is hidden on mobile */
+  .hero2__second { display: none; }
   /* Gallery on top, text panel below */
   .hero2__stage {
     grid-template-columns: 1fr;
