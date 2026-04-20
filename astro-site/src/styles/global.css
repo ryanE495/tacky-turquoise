@@ -27,22 +27,14 @@ section { padding: 120px 48px; position: relative; }
   margin-bottom: 56px;
 }
 .section-head h2 {
-  font-family: var(--f-script);
-  font-size: clamp(56px, 8vw, 120px);
-  line-height: .9;
+  font-family: var(--f-serif);
+  font-size: clamp(48px, 7vw, 100px);
+  line-height: 1;
+  letter-spacing: -0.015em;
   grid-column: 1 / span 2;
-  color: #0a1012;
-  -webkit-text-stroke: 10px #5ff4de;
-  paint-order: stroke fill;
-  text-shadow: 0 0 4px #5ff4de, 0 0 12px #5ff4de, 0 0 28px #5ff4de, 0 0 55px rgba(95,244,222,.75), 0 0 100px rgba(95,244,222,.45);
+  color: var(--c-ink);
 }
-.section-head h2 em {
-  font-style: italic;
-  color: #0a1012;
-  -webkit-text-stroke: 10px #ff4fb8;
-  paint-order: stroke fill;
-  text-shadow: 0 0 4px #ff4fb8, 0 0 12px #ff4fb8, 0 0 28px #ff4fb8, 0 0 55px rgba(255,79,184,.75), 0 0 100px rgba(255,79,184,.45);
-}
+.section-head h2 em { font-style: italic; color: var(--c-coral); }
 .section-head .num { align-self: start; padding-top: 14px; color: var(--c-ink-soft); font-family: var(--f-mono); }
 .cats .section-head .num,
 .arrivals .section-head .num,

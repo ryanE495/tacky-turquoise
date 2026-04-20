@@ -10,8 +10,8 @@
   --c-turquoise:       #1d7a82;
   --c-turquoise-light: #5ff4de;
   --c-pink:            #e04a94;
-  --c-coral:           #e8623c;
-  --c-orange:          #e89540;
+  --c-coral:           #1d7a82;
+  --c-orange:          #2ea5ad;
   --c-gold:            #d4a332;
   --c-lime:            #7fa83a;
 
@@ -20,7 +20,7 @@
   --c-cream:    #f9f2e3;
 
   --f-display: "Monoton", serif;
-  --f-script:  "Sacramento", cursive;
+  --f-script:  "DM Serif Display", Georgia, serif;
   --f-serif:   "DM Serif Display", Georgia, serif;
   --f-body:    "Inter", system-ui, sans-serif;
   --f-mono:    "JetBrains Mono", ui-monospace, monospace;
