@@ -1,33 +1,126 @@
 ---
 import Nav from './Nav.astro';
+
+// Gallery tiles — hero.webp cropped at varying object-positions for a collage feel
+const tiles = [
+  '10% 20%',
+  '70% 10%',
+  '30% 80%',
+  '85% 60%',
+  '50% 50%',
+  '20% 65%',
+  '80% 30%',
+  '45% 15%',
+];
+
+const dropTargetISO = '2026-05-20T18:00:00-06:00';
+const dropHuman = 'Spring Drop \u201926  ·  May 20  ·  6 PM MT';
 ---
-<header class="hero" id="hero">
+
+<header class="hero2" id="hero">
   <Nav />
 
-  <div class="hero__open" aria-hidden="true">OPEN</div>
+  <!-- Two-column stage: gallery left, text right -->
+  <div class="hero2__stage">
+    <div class="hero2__gallery" aria-hidden="true">
+      {tiles.map((pos) => (
+        <div class="hero2__tile">
+          <img src="/images/hero.webp" alt="" style={`object-position: ${pos};`} loading="eager" />
+        </div>
+      ))}
+    </div>
 
-  <div class="hero__bg" aria-hidden="true"></div>
-
-  <div class="hero__content">
-    <h1 class="hero__title reveal reveal--d1">
-      <span class="line1">Real Stone.</span>
-      <span class="line2">Real Hands.</span>
-      <span class="line3">Real Loud.</span>
-    </h1>
-
-    <div class="hero__bottom">
-      <p class="hero__sub reveal reveal--d2">
-        Handset turquoise, sterling silver, and attitude — cut from Kingman, Royston,
-        and Sleeping Beauty mines by Navajo and Zuni silversmiths we know by first name.
-      </p>
-      <div class="hero__meta reveal reveal--d2">
-        <span class="label">◆ Est. Gallup, NM</span>
-        <span>34.5361° N, 108.7422° W</span>
+    <div class="hero2__content">
+      <div class="hero2__eyebrow reveal">
+        <span class="dot" aria-hidden="true"></span>
+        <span>Vol. 07 · Spring Drop '26</span>
       </div>
-      <a href="#" class="hero__cta reveal reveal--d3">
-        Shop the Drop
-        <span class="arrow">→</span>
-      </a>
+
+      <h1 class="hero2__title reveal reveal--d1">
+        Handmade, <em>heirloom</em> pieces.
+      </h1>
+
+      <p class="hero2__sub reveal reveal--d2">
+        All our pieces are cut, set, and prayed over by hand in
+        the high desert of Gallup, New Mexico.
+      </p>
+
+      <div class="hero2__actions reveal reveal--d3">
+        <a href="/shop" class="hero2__cta">
+          <span>Shop the drop</span>
+          <span class="arrow" aria-hidden="true">→</span>
+        </a>
+        <a href="#next-drop" class="hero2__second">See what's next ↓</a>
+      </div>
     </div>
   </div>
 </header>
+
+<!-- NEXT DROP COUNTDOWN -->
+<section class="next-drop" id="next-drop">
+  <div class="next-drop__inner">
+    <div class="next-drop__eyebrow">
+      <span class="dot" aria-hidden="true"></span>
+      <span>{dropHuman}</span>
+    </div>
+
+    <h2 class="next-drop__title">
+      Next <em>drop.</em>
+    </h2>
+
+    <div class="countdown" id="countdown" data-target={dropTargetISO} aria-live="polite">
+      <div class="countdown__cell"><span class="n" data-unit="d">00</span><span class="lbl">Days</span></div>
+      <div class="countdown__sep" aria-hidden="true">:</div>
+      <div class="countdown__cell"><span class="n" data-unit="h">00</span><span class="lbl">Hours</span></div>
+      <div class="countdown__sep" aria-hidden="true">:</div>
+      <div class="countdown__cell"><span class="n" data-unit="m">00</span><span class="lbl">Minutes</span></div>
+      <div class="countdown__sep" aria-hidden="true">:</div>
+      <div class="countdown__cell"><span class="n" data-unit="s">00</span><span class="lbl">Seconds</span></div>
+    </div>
+
+    <div class="countdown__live" id="countdown-live" hidden>The drop is <em>live</em>. Go.</div>
+
+    <a href="/shop" class="next-drop__cta">
+      <span>Shop the drop</span>
+      <span class="arrow" aria-hidden="true">→</span>
+    </a>
+  </div>
+</section>
+
+<script>
+  (function () {
+    const el = document.getElementById('countdown');
+    if (!el) return;
+    const target = new Date(el.dataset.target!).getTime();
+    const units: Record<string, HTMLElement> = {
+      d: el.querySelector<HTMLElement>('[data-unit="d"]')!,
+      h: el.querySelector<HTMLElement>('[data-unit="h"]')!,
+      m: el.querySelector<HTMLElement>('[data-unit="m"]')!,
+      s: el.querySelector<HTMLElement>('[data-unit="s"]')!,
+    };
+    const live = document.getElementById('countdown-live');
+
+    function pad(n: number) { return n < 10 ? '0' + n : String(n); }
+
+    function tick() {
+      const diff = target - Date.now();
+      if (diff <= 0) {
+        Object.values(units).forEach((u) => (u.textContent = '00'));
+        el!.setAttribute('data-done', 'true');
+        if (live) live.hidden = false;
+        return;
+      }
+      const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const m = Math.floor((diff / (1000 * 60)) % 60);
+      const s = Math.floor((diff / 1000) % 60);
+      units.d.textContent = pad(d);
+      units.h.textContent = pad(h);
+      units.m.textContent = pad(m);
+      units.s.textContent = pad(s);
+    }
+    tick();
+    const interval = window.setInterval(tick, 1000);
+    window.addEventListener('beforeunload', () => window.clearInterval(interval));
+  })();
+</script>

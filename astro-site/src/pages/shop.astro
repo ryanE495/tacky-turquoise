@@ -5,7 +5,6 @@ import '../styles/components.css';
 import '../styles/shop.css';
 import '../styles/mobile-menu.css';
 
-import Marquee from '../components/Marquee.astro';
 import Footer from '../components/Footer.astro';
 import MobileMenu from '../components/MobileMenu.astro';
 import { fetchPublishedProducts, storageUrl, formatPrice } from '../lib/supabase';
@@ -100,8 +99,6 @@ const titleHtml = (t: string) => t.replace(/(\b\w+)$/, '<em>$1</em>');
     />
   </head>
   <body class="density-4 card-standard">
-    <Marquee />
-
     <nav class="shop-nav">
       <div class="shop-nav__links">
         <a href="/shop" class="is-active">Shop</a>
