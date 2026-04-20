@@ -56,28 +56,23 @@ section { padding: 120px 48px; position: relative; }
 .reveal--d2 { transition-delay: .18s; }
 .reveal--d3 { transition-delay: .28s; }
 
-@media (max-width: 1100px) {
-  .cats__grid { grid-template-columns: repeat(3, 1fr); }
-  .arrivals__grid { grid-template-columns: repeat(3, 1fr); }
-  .hp__grid { grid-template-columns: 1fr; gap: 48px; }
-  .featured__grid, .artist__inner { grid-template-columns: 1fr; gap: 32px; }
-  .ftr-grid { grid-template-columns: 1fr 1fr; }
-  .nav__links { display: none; }
-  .hero__content { padding: 150px 32px 36px; }
-  .hero__bottom { grid-template-columns: 1fr; gap: 24px; }
-  .hero__open { top: 120px; right: 32px; font-size: 32px; padding: 10px 20px; }
-  .hero__cactus { top: 220px; right: 36px; width: 90px; height: 120px; }
+/* ---------- RESPONSIVE ---------- */
+/* Desktop (>=1201px): styles above. Below breakpoints scale down progressively. */
+
+@media (max-width: 1200px) {
+  section { padding: 100px 40px; }
+}
+
+@media (max-width: 1024px) {
   section { padding: 80px 32px; }
 }
-@media (max-width: 640px) {
-  .cats__grid { grid-template-columns: repeat(2, 1fr); }
-  .arrivals__grid { grid-template-columns: repeat(2, 1fr); gap: 28px 16px; }
-  .ftr-grid { grid-template-columns: 1fr; gap: 32px; }
+
+@media (max-width: 768px) {
+  section { padding: 64px 24px; }
+}
+
+@media (max-width: 480px) {
   .section-head { grid-template-columns: 1fr; }
   .section-head h2 { grid-column: 1; }
-  .nav { padding: 0 20px; top: 16px; }
-  .nav__logo img { height: 64px; }
-  .hero__content { padding: 130px 20px 28px; }
-  .hero__open, .hero__cactus { display: none; }
-  section { padding: 64px 20px; }
+  section { padding: 56px 16px; }
 }

@@ -1,0 +1,115 @@
+---
+const LOGO = 'https://bswmrfxdadcmuyhmsagv.supabase.co/storage/v1/object/public/portfolio-images/logo-new.svg';
+
+const primary = [
+  { num: '01', label: 'Home',       em: null,         href: '/' },
+  { num: '02', label: 'Shop ',      em: 'pieces',     href: '/shop' },
+  { num: '03', label: 'The ',       em: 'artists',    href: '#' },
+  { num: '04', label: 'Our ',       em: 'story',      href: '#' },
+  { num: '05', label: 'Journal',    em: null,         href: '#' },
+];
+---
+<div class="mm" id="mobile-menu" aria-hidden="true" role="dialog" aria-label="Menu">
+  <div class="mm__stars" aria-hidden="true"></div>
+
+  <div class="mm__head">
+    <a href="/" class="mm__brand" aria-label="Tacky Turquoise home">
+      <img src={LOGO} alt="Tacky Turquoise" />
+    </a>
+    <button type="button" class="mm__close" aria-label="Close menu">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5 L19 19 M19 5 L5 19" /></svg>
+    </button>
+  </div>
+
+  <div class="mm__eyebrow">
+    <span class="dot"></span>
+    <span>◆ Est. Gallup, NM · Spring Drop '26</span>
+  </div>
+
+  <nav class="mm__nav" aria-label="Primary">
+    {primary.map((item, i) => (
+      <a href={item.href} class="mm__link" style={`--i:${i}`}>
+        <span class="mm__link-num">{item.num}</span>
+        <span class="mm__link-label">
+          {item.label}{item.em && <em>{item.em}</em>}
+        </span>
+        <span class="mm__link-arrow" aria-hidden="true">→</span>
+      </a>
+    ))}
+  </nav>
+
+  <div class="mm__utility">
+    <a href="#" class="mm__util"><span>Search</span></a>
+    <a href="#" class="mm__util"><span>Account</span></a>
+    <a href="#" class="mm__cart">
+      <span>Bag</span>
+      <span class="count">(0)</span>
+    </a>
+  </div>
+
+  <div class="mm__foot">
+    <div class="mm__coords">34.5361° N · 108.7422° W</div>
+    <div class="mm__socials">
+      <a href="#" aria-label="Instagram">IG</a>
+      <span aria-hidden="true">·</span>
+      <a href="#" aria-label="Pinterest">PIN</a>
+      <span aria-hidden="true">·</span>
+      <a href="#" aria-label="TikTok">TT</a>
+    </div>
+  </div>
+
+  <div class="mm__open" aria-hidden="true">OPEN</div>
+</div>
+
+<script>
+  (function () {
+    const menu = document.getElementById('mobile-menu');
+    if (!menu) return;
+    const closer = menu.querySelector<HTMLButtonElement>('.mm__close');
+    const body = document.body;
+    let lastFocus: HTMLElement | null = null;
+
+    function open(trigger?: HTMLElement) {
+      lastFocus = (trigger as HTMLElement) ?? (document.activeElement as HTMLElement);
+      menu!.classList.add('is-open');
+      body.classList.add('mm-open');
+      menu!.setAttribute('aria-hidden', 'false');
+      document
+        .querySelectorAll<HTMLButtonElement>('.mobile-menu-trigger')
+        .forEach((b) => b.setAttribute('aria-expanded', 'true'));
+      setTimeout(() => closer?.focus(), 50);
+    }
+
+    function close() {
+      menu!.classList.remove('is-open');
+      body.classList.remove('mm-open');
+      menu!.setAttribute('aria-hidden', 'true');
+      document
+        .querySelectorAll<HTMLButtonElement>('.mobile-menu-trigger')
+        .forEach((b) => b.setAttribute('aria-expanded', 'false'));
+      if (lastFocus && document.body.contains(lastFocus)) lastFocus.focus();
+    }
+
+    document.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      const trigger = target.closest<HTMLElement>('.mobile-menu-trigger');
+      if (trigger) {
+        e.preventDefault();
+        open(trigger);
+        return;
+      }
+      if (target.closest('.mm__close')) {
+        close();
+        return;
+      }
+      // Close when a link inside the menu is tapped
+      if (menu!.classList.contains('is-open') && target.closest('.mm a[href]')) {
+        close();
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && menu!.classList.contains('is-open')) close();
+    });
+  })();
+</script>

@@ -7,6 +7,9 @@ const { title = 'Tacky Turquoise — Real Stone. Real Hands. Real Loud.' } = Ast
 import '../styles/tokens.css';
 import '../styles/global.css';
 import '../styles/components.css';
+import '../styles/mobile-menu.css';
+
+import MobileMenu from '../components/MobileMenu.astro';
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -23,6 +26,7 @@ import '../styles/components.css';
   </head>
   <body>
     <slot />
+    <MobileMenu />
 
     <script>
       // Reveal-on-scroll

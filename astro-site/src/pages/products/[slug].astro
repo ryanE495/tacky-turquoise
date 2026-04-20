@@ -4,9 +4,11 @@ import '../../styles/global.css';
 import '../../styles/components.css';
 import '../../styles/shop.css';
 import '../../styles/product.css';
+import '../../styles/mobile-menu.css';
 
 import Marquee from '../../components/Marquee.astro';
 import Footer from '../../components/Footer.astro';
+import MobileMenu from '../../components/MobileMenu.astro';
 import { fetchPublishedProducts, storageUrl, formatPrice, type ProductWithImages } from '../../lib/supabase';
 
 const LOGO = 'https://bswmrfxdadcmuyhmsagv.supabase.co/storage/v1/object/public/portfolio-images/logo-new.svg';
@@ -68,6 +70,9 @@ const description = product.description ?? '';
         <a href="#">Search</a>
         <a href="#">Account</a>
         <a href="#" class="cart">Bag (0)</a>
+        <button type="button" class="mobile-menu-trigger" aria-label="Open menu" aria-controls="mobile-menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
       </div>
     </nav>
 
@@ -163,6 +168,7 @@ const description = product.description ?? '';
     </div>
 
     <Footer />
+    <MobileMenu />
 
     <script>
       const thumbs = document.querySelectorAll<HTMLButtonElement>('.gallery__thumb');

@@ -1,0 +1,329 @@
+/* ==============================================================
+   MOBILE MENU — full-screen overlay
+   Theme: cream wash + DM Serif headings, turquoise italic
+   accents, mono labels. Desktop hides the trigger and overlay.
+   ============================================================== */
+
+/* Hamburger trigger — rendered inside each nav's right slot */
+.mobile-menu-trigger {
+  display: none;
+  position: relative;
+  width: 36px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  color: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+.mobile-menu-trigger span {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--c-ink);
+  transition: transform .35s cubic-bezier(.2,.7,.2,1),
+              opacity .2s, top .3s, width .3s;
+}
+.mobile-menu-trigger span:nth-child(1) { top: 4px; }
+.mobile-menu-trigger span:nth-child(2) { top: 12px; width: calc(100% - 16px); background: var(--c-turquoise); }
+.mobile-menu-trigger span:nth-child(3) { top: 20px; }
+.mobile-menu-trigger:hover span:nth-child(2) { width: calc(100% - 8px); }
+.mobile-menu-trigger[aria-expanded="true"] span:nth-child(1) { top: 12px; transform: rotate(45deg); }
+.mobile-menu-trigger[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+.mobile-menu-trigger[aria-expanded="true"] span:nth-child(3) { top: 12px; transform: rotate(-45deg); }
+
+@media (max-width: 1024px) {
+  .mobile-menu-trigger { display: inline-block; }
+}
+
+/* Body scroll-lock while menu is open */
+body.mm-open { overflow: hidden; }
+
+/* ---------- overlay shell ---------- */
+.mm {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(20px, 6vw, 40px) clamp(20px, 6vw, 40px) 28px;
+
+  color: var(--c-ink);
+  background: var(--c-bg);
+  background-image:
+    radial-gradient(ellipse at 100% 0%,  rgba(29,122,130,.22) 0%, transparent 50%),
+    radial-gradient(ellipse at 0%   100%, rgba(232,98,60,.18) 0%, transparent 55%),
+    radial-gradient(ellipse at 50%  50%,  rgba(242,232,213,.6) 0%, transparent 70%);
+
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(1.02);
+  transition: opacity .42s ease, transform .5s cubic-bezier(.2,.7,.2,1), visibility 0s linear .5s;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.mm.is-open {
+  opacity: 1;
+  visibility: visible;
+  transform: scale(1);
+  transition: opacity .38s ease, transform .5s cubic-bezier(.2,.7,.2,1), visibility 0s;
+}
+
+/* soft star field — subtle texture echoing the hero */
+.mm__stars {
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(1.4px 1.4px at 18% 22%, rgba(29,122,130,.5), transparent),
+    radial-gradient(1px   1px   at 72% 15%, rgba(212,163,50,.55), transparent),
+    radial-gradient(1.2px 1.2px at 40% 55%, rgba(29,122,130,.35), transparent),
+    radial-gradient(1px   1px   at 88% 72%, rgba(232,98,60,.4),  transparent),
+    radial-gradient(1.3px 1.3px at 14% 84%, rgba(212,163,50,.4), transparent),
+    radial-gradient(1px   1px   at 60% 90%, rgba(29,122,130,.35), transparent);
+  pointer-events: none;
+  opacity: .85;
+}
+
+/* ---------- head ---------- */
+.mm__head {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--c-line);
+}
+.mm__brand img {
+  height: 56px;
+  width: auto;
+  display: block;
+}
+.mm__close {
+  width: 46px; height: 46px;
+  border: 1px solid var(--c-ink);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--c-ink);
+  display: grid; place-items: center;
+  cursor: pointer;
+  transition: background .2s, color .2s, transform .2s;
+}
+.mm__close:hover { background: var(--c-ink); color: var(--c-cream); transform: rotate(90deg); }
+.mm__close svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+
+/* ---------- eyebrow ---------- */
+.mm__eyebrow {
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  color: var(--c-ink-soft);
+  margin-top: 24px;
+}
+.mm__eyebrow .dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--c-turquoise-light);
+  box-shadow: 0 0 0 3px rgba(95,244,222,.25), 0 0 10px rgba(95,244,222,.6);
+  animation: mmPulse 2.2s ease-in-out infinite;
+}
+@keyframes mmPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: .6; transform: scale(.85); }
+}
+
+/* ---------- primary nav list ---------- */
+.mm__nav {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  margin-top: 28px;
+  border-top: 1px solid var(--c-line);
+}
+.mm__link {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: baseline;
+  gap: 16px;
+  padding: clamp(18px, 4vw, 28px) 4px;
+  border-bottom: 1px solid var(--c-line);
+  text-decoration: none;
+  color: var(--c-ink);
+
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity .5s ease, transform .5s cubic-bezier(.2,.7,.2,1);
+  transition-delay: calc(var(--i, 0) * 55ms + 150ms);
+}
+.mm.is-open .mm__link {
+  opacity: 1;
+  transform: none;
+}
+
+.mm__link-num {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: .2em;
+  color: var(--c-ink-soft);
+  align-self: center;
+  min-width: 28px;
+}
+.mm__link-label {
+  font-family: var(--f-serif);
+  font-size: clamp(42px, 11vw, 72px);
+  line-height: 1;
+  letter-spacing: -0.015em;
+  color: var(--c-ink);
+}
+.mm__link-label em { font-style: italic; color: var(--c-coral); }
+
+.mm__link-arrow {
+  align-self: center;
+  font-family: var(--f-body);
+  font-size: 24px;
+  color: var(--c-ink-soft);
+  transform: translateX(-4px);
+  transition: transform .25s ease, color .25s ease;
+}
+.mm__link:hover .mm__link-arrow,
+.mm__link:focus-visible .mm__link-arrow {
+  transform: translateX(2px);
+  color: var(--c-turquoise);
+}
+
+/* Animated sliding underline on hover */
+.mm__link::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: -1px;
+  height: 1px;
+  background: var(--c-turquoise);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform .35s cubic-bezier(.2,.7,.2,1);
+}
+.mm__link:hover::after,
+.mm__link:focus-visible::after { transform: scaleX(1); }
+
+/* ---------- utility row (Search / Account / Bag) ---------- */
+.mm__utility {
+  margin-top: 28px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.mm__util {
+  display: inline-flex;
+  align-items: center;
+  padding: 12px 18px;
+  border: 1px solid var(--c-line);
+  border-radius: 999px;
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--c-ink);
+  background: rgba(249,242,227,.5);
+  backdrop-filter: blur(4px);
+  transition: background .2s, border-color .2s, color .2s;
+}
+.mm__util:hover {
+  background: var(--c-ink);
+  color: var(--c-cream);
+  border-color: var(--c-ink);
+}
+
+.mm__cart {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  padding: 12px 20px;
+  background: var(--c-ink);
+  color: var(--c-cream);
+  border: 1px solid var(--c-ink);
+  border-radius: 999px;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  transition: background .2s;
+  box-shadow: 0 2px 10px rgba(30,42,45,.18);
+}
+.mm__cart:hover { background: var(--c-turquoise); border-color: var(--c-turquoise); }
+.mm__cart .count { opacity: .75; font-size: 10px; }
+
+/* ---------- foot ---------- */
+.mm__foot {
+  margin-top: auto;
+  padding-top: 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  border-top: 1px solid var(--c-line);
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--c-ink-soft);
+}
+.mm__socials { display: flex; gap: 10px; align-items: baseline; }
+.mm__socials a { color: var(--c-ink-soft); transition: color .2s; }
+.mm__socials a:hover { color: var(--c-turquoise); }
+
+/* ---------- decorative OPEN sign (echoes hero's neon sign) ---------- */
+.mm__open {
+  position: absolute;
+  right: clamp(20px, 6vw, 40px);
+  top: 120px;
+  z-index: 1;
+  font-family: var(--f-display);
+  font-size: clamp(28px, 6vw, 44px);
+  letter-spacing: .15em;
+  color: var(--c-turquoise-light);
+  text-shadow: var(--glow-neon);
+  padding: 10px 20px;
+  border: 2px solid var(--c-turquoise-light);
+  border-radius: 10px;
+  background: rgba(20, 30, 34, 0.85);
+  transform: rotate(-4deg);
+  animation: mmFlicker 5s linear infinite;
+  opacity: 0;
+  transition: opacity .5s ease .6s, transform .5s cubic-bezier(.2,.7,.2,1) .6s;
+  pointer-events: none;
+}
+.mm.is-open .mm__open { opacity: 1; transform: rotate(-4deg) translateY(0); }
+@keyframes mmFlicker {
+  0%, 100% { opacity: 1; }
+  43%      { opacity: .3; }
+  44%      { opacity: 1; }
+  71%      { opacity: .6; }
+  72%      { opacity: 1; }
+}
+
+/* Hide the decorative OPEN sign on mobile — it crowds the menu content */
+@media (max-width: 1024px) {
+  .mm__open { display: none; }
+}
+
+/* ---------- small-phone refinements ---------- */
+@media (max-width: 480px) {
+  .mm__head { padding-bottom: 16px; }
+  .mm__brand img { height: 44px; }
+  .mm__close { width: 40px; height: 40px; }
+  .mm__nav { margin-top: 22px; }
+  .mm__link-label { font-size: clamp(36px, 12vw, 56px); }
+  .mm__utility { gap: 8px; margin-top: 22px; }
+  .mm__util { padding: 10px 14px; font-size: 9px; letter-spacing: .2em; }
+  .mm__cart { padding: 10px 16px; font-size: 10px; letter-spacing: .22em; margin-left: 0; width: 100%; justify-content: space-between; }
+}
+
+/* On desktop the overlay and trigger are always hidden — safety guard */
+@media (min-width: 1025px) {
+  .mm, .mobile-menu-trigger { display: none !important; }
+}
