@@ -1,0 +1,320 @@
+---
+import Base from '../layouts/Base.astro';
+import Footer from '../components/Footer.astro';
+
+const US_STATES = [
+  ['AL','Alabama'],['AK','Alaska'],['AZ','Arizona'],['AR','Arkansas'],['CA','California'],
+  ['CO','Colorado'],['CT','Connecticut'],['DE','Delaware'],['DC','District of Columbia'],
+  ['FL','Florida'],['GA','Georgia'],['HI','Hawaii'],['ID','Idaho'],['IL','Illinois'],
+  ['IN','Indiana'],['IA','Iowa'],['KS','Kansas'],['KY','Kentucky'],['LA','Louisiana'],
+  ['ME','Maine'],['MD','Maryland'],['MA','Massachusetts'],['MI','Michigan'],['MN','Minnesota'],
+  ['MS','Mississippi'],['MO','Missouri'],['MT','Montana'],['NE','Nebraska'],['NV','Nevada'],
+  ['NH','New Hampshire'],['NJ','New Jersey'],['NM','New Mexico'],['NY','New York'],
+  ['NC','North Carolina'],['ND','North Dakota'],['OH','Ohio'],['OK','Oklahoma'],['OR','Oregon'],
+  ['PA','Pennsylvania'],['RI','Rhode Island'],['SC','South Carolina'],['SD','South Dakota'],
+  ['TN','Tennessee'],['TX','Texas'],['UT','Utah'],['VT','Vermont'],['VA','Virginia'],
+  ['WA','Washington'],['WV','West Virginia'],['WI','Wisconsin'],['WY','Wyoming'],
+];
+
+const SHIPPING_CENTS = 800;
+---
+<Base title="Checkout — Tacky Turquoise">
+  <section class="storefront-page">
+    <div class="storefront-page__inner">
+      <div class="storefront-page__crumb"><a href="/">Home</a> &nbsp;/&nbsp; <a href="/cart">Cart</a> &nbsp;/&nbsp; Checkout</div>
+      <h1 class="storefront-page__title"><em>Check out.</em></h1>
+
+      <div id="checkout-loading" class="storefront-loading">Preparing your order…</div>
+
+      <div id="checkout-main" hidden class="checkout-layout">
+        <form id="checkout-form" class="checkout-form" novalidate>
+          <div id="form-error"></div>
+
+          <section class="checkout-form__section">
+            <h2 class="checkout-form__section-title">Contact & shipping</h2>
+
+            <div class="field">
+              <label class="field__label" for="email">Email <span aria-hidden="true">*</span></label>
+              <input id="email" name="email" type="email" required aria-required="true" aria-describedby="email-error" autocomplete="email" />
+              <div class="field__error" id="email-error" hidden></div>
+            </div>
+
+            <div class="field">
+              <label class="field__label" for="full_name">Full name <span aria-hidden="true">*</span></label>
+              <input id="full_name" name="full_name" type="text" required aria-required="true" aria-describedby="full_name-error" autocomplete="name" />
+              <div class="field__error" id="full_name-error" hidden></div>
+            </div>
+
+            <div class="field">
+              <label class="field__label" for="phone">Phone <span class="optional">optional</span></label>
+              <input id="phone" name="phone" type="tel" autocomplete="tel" />
+            </div>
+
+            <h3 class="checkout-form__sub">Shipping address</h3>
+
+            <div class="field">
+              <label class="field__label" for="line1">Address line 1 <span aria-hidden="true">*</span></label>
+              <input id="line1" name="line1" type="text" required aria-required="true" aria-describedby="line1-error" autocomplete="address-line1" />
+              <div class="field__error" id="line1-error" hidden></div>
+            </div>
+
+            <div class="field">
+              <label class="field__label" for="line2">Address line 2 <span class="optional">optional</span></label>
+              <input id="line2" name="line2" type="text" autocomplete="address-line2" />
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label class="field__label" for="city">City <span aria-hidden="true">*</span></label>
+                <input id="city" name="city" type="text" required aria-required="true" aria-describedby="city-error" autocomplete="address-level2" />
+                <div class="field__error" id="city-error" hidden></div>
+              </div>
+              <div class="field">
+                <label class="field__label" for="state">State <span aria-hidden="true">*</span></label>
+                <select id="state" name="state" required aria-required="true" aria-describedby="state-error" autocomplete="address-level1">
+                  <option value="">Select state</option>
+                  {US_STATES.map(([code, name]) => (
+                    <option value={code}>{name}</option>
+                  ))}
+                </select>
+                <div class="field__error" id="state-error" hidden></div>
+              </div>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label class="field__label" for="zip">ZIP <span aria-hidden="true">*</span></label>
+                <input id="zip" name="zip" type="text" required aria-required="true" aria-describedby="zip-error" inputmode="numeric" autocomplete="postal-code" />
+                <div class="field__error" id="zip-error" hidden></div>
+              </div>
+              <div class="field">
+                <label class="field__label" for="country">Country</label>
+                <input id="country" name="country" type="text" value="United States" disabled />
+                <div class="field__help">US shipping only for now.</div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="field__label" for="notes">Order notes <span class="optional">optional</span></label>
+              <textarea id="notes" name="notes" rows="3"></textarea>
+            </div>
+          </section>
+        </form>
+
+        <aside id="checkout-summary"></aside>
+      </div>
+    </div>
+  </section>
+  <Footer />
+</Base>
+
+<script>
+  import { getCart, removeManyFromCart, clearCart } from '../lib/cart';
+  import { formatPrice } from '../lib/format';
+  import { renderSummaryRow, sumCents, validateCart, type CartItemData } from '../lib/cart-render';
+
+  const SHIPPING = 800;
+
+  const loadingEl = document.getElementById('checkout-loading')!;
+  const mainEl = document.getElementById('checkout-main')!;
+  const summaryEl = document.getElementById('checkout-summary')!;
+  const formEl = document.getElementById('checkout-form') as HTMLFormElement;
+  const formErrorEl = document.getElementById('form-error')!;
+
+  let available: CartItemData[] = [];
+
+  function renderSummary(items: CartItemData[]) {
+    const subtotal = sumCents(items);
+    const total = subtotal + SHIPPING;
+    summaryEl.innerHTML = `
+      <div class="order-summary">
+        <div class="order-summary__heading">Order summary</div>
+        <div class="order-summary__items">
+          ${items.map((it) => renderSummaryRow(it)).join('')}
+        </div>
+        <div class="order-summary__lines">
+          <div class="order-summary__line">
+            <span class="label">Subtotal</span>
+            <span class="value">${formatPrice(subtotal)}</span>
+          </div>
+          <div class="order-summary__line">
+            <span class="label">Shipping</span>
+            <span class="value">Flat rate ${formatPrice(SHIPPING)}</span>
+          </div>
+          <div class="order-summary__line order-summary__line--muted">
+            <span class="label">Tax</span>
+            <span class="value">Calculated at payment</span>
+          </div>
+        </div>
+        <div class="order-summary__total">
+          <span class="label">Estimated total</span>
+          <span class="value">${formatPrice(total)}</span>
+        </div>
+        <button type="submit" form="checkout-form" id="submit-btn" class="order-summary__cta">
+          <span class="label">Complete order</span>
+          <span class="arrow" aria-hidden="true">→</span>
+        </button>
+        <p class="order-summary__fine">You'll be redirected to secure payment.</p>
+      </div>
+    `;
+  }
+
+  function setFieldError(name: string, msg: string | null) {
+    const input = formEl.elements.namedItem(name) as (HTMLInputElement | HTMLSelectElement | null);
+    const err = document.getElementById(`${name}-error`);
+    if (!input || !err) return;
+    if (msg) {
+      input.setAttribute('aria-invalid', 'true');
+      err.textContent = msg;
+      err.hidden = false;
+    } else {
+      input.removeAttribute('aria-invalid');
+      err.hidden = true;
+    }
+  }
+
+  function validateField(name: string): boolean {
+    const input = formEl.elements.namedItem(name) as (HTMLInputElement | HTMLSelectElement | null);
+    if (!input) return true;
+    const v = (input.value ?? '').trim();
+    if (!input.hasAttribute('required') ? false : !v) {
+      setFieldError(name, 'Required');
+      return false;
+    }
+    if (name === 'email') {
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) {
+        setFieldError(name, 'Enter a valid email');
+        return false;
+      }
+    }
+    if (name === 'zip') {
+      if (!/^\d{5}(-\d{4})?$/.test(v)) {
+        setFieldError(name, 'Enter a valid ZIP');
+        return false;
+      }
+    }
+    setFieldError(name, null);
+    return true;
+  }
+
+  function validateAll(): boolean {
+    const names = ['email', 'full_name', 'line1', 'city', 'state', 'zip'];
+    return names.map(validateField).every(Boolean);
+  }
+
+  function showFormError(msg: string) {
+    formErrorEl.innerHTML = `
+      <div class="callout callout--error" role="alert">
+        <div>
+          <span class="callout__label">Unable to complete order</span>
+          <p>${msg}</p>
+        </div>
+      </div>
+    `;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  formEl.addEventListener('blur', (e) => {
+    const t = e.target as HTMLElement;
+    if (t && (t.tagName === 'INPUT' || t.tagName === 'SELECT')) {
+      const name = (t as HTMLInputElement).name;
+      if (name) validateField(name);
+    }
+  }, true);
+
+  formEl.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    formErrorEl.innerHTML = '';
+    if (!validateAll()) return;
+    const btn = document.getElementById('submit-btn') as HTMLButtonElement | null;
+    if (!btn) return;
+    btn.disabled = true;
+    const labelEl = btn.querySelector<HTMLElement>('.label');
+    const originalLabel = labelEl?.textContent ?? '';
+    if (labelEl) labelEl.textContent = 'Processing…';
+
+    const data = new FormData(formEl);
+    const payload = {
+      product_ids: available.map((a) => a.id),
+      customer: {
+        email: String(data.get('email') ?? '').trim(),
+        full_name: String(data.get('full_name') ?? '').trim(),
+        phone: String(data.get('phone') ?? '').trim() || null,
+      },
+      shipping_address: {
+        line1: String(data.get('line1') ?? '').trim(),
+        line2: String(data.get('line2') ?? '').trim() || null,
+        city: String(data.get('city') ?? '').trim(),
+        state: String(data.get('state') ?? '').trim(),
+        postal_code: String(data.get('zip') ?? '').trim(),
+        country: 'US',
+      },
+      customer_notes: String(data.get('notes') ?? '').trim() || null,
+    };
+
+    try {
+      const res = await fetch('/api/checkout/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const json = await res.json();
+      if (json.ok && json.data?.redirect_to) {
+        window.location.href = json.data.redirect_to;
+        return;
+      }
+      if (!json.ok && json.error?.code === 'items_unavailable') {
+        const unavailable = (json.error.unavailable as Array<{ id: string; title?: string }>) ?? [];
+        const ids = unavailable.map((u) => u.id);
+        const titles = unavailable.map((u) => u.title).filter(Boolean);
+        removeManyFromCart(ids);
+        if (getCart().length === 0) {
+          window.location.href = '/shop?sold=1';
+          return;
+        }
+        const list = titles.length ? titles.join(', ') : 'one or more pieces';
+        showFormError(`${list} sold before your order went through. Your cart has been updated — please review and try again.`);
+        btn.disabled = false;
+        if (labelEl) labelEl.textContent = originalLabel;
+        window.setTimeout(() => { window.location.href = '/cart?unavailable=1'; }, 1800);
+        return;
+      }
+      showFormError('Something went wrong. Please try again.');
+      btn.disabled = false;
+      if (labelEl) labelEl.textContent = originalLabel;
+    } catch {
+      showFormError('Network error. Please check your connection and try again.');
+      btn.disabled = false;
+      if (labelEl) labelEl.textContent = originalLabel;
+    }
+  });
+
+  async function init() {
+    const ids = getCart();
+    if (!ids.length) {
+      window.location.href = '/shop';
+      return;
+    }
+    try {
+      const result = await validateCart(ids);
+
+      if (result.unavailable.length) {
+        removeManyFromCart(result.unavailable.map((u: { id: string }) => u.id));
+        window.location.href = '/cart?unavailable=1';
+        return;
+      }
+      available = result.available;
+      if (!available.length) {
+        window.location.href = '/shop';
+        return;
+      }
+      renderSummary(available);
+      loadingEl.hidden = true;
+      mainEl.hidden = false;
+    } catch {
+      loadingEl.innerHTML = '<p class="storefront-error">We couldn\u2019t load your cart. Please return to <a href="/cart">your cart</a> and try again.</p>';
+    }
+  }
+
+  init();
+</script>

@@ -1,23 +1,23 @@
 :root {
-  /* Warm daylight palette — desert at noon, with neon script accents */
-  --c-bg:       #f2e8d5;
-  --c-bg-2:     #e8dcc2;
-  --c-bg-3:     #f9f2e3;
-  --c-ink:      #1e2a2d;
-  --c-ink-soft: #5a6568;
-  --c-line:     rgba(30, 42, 45, 0.12);
+  /* Palette — warm tan base, peach panels, ivory surfaces, cyan pop, soft pink */
+  --c-bg:       #B28165;          /* tan / saddle brown — page background */
+  --c-bg-2:     #fee0c8;          /* peach cream — panels & soft sections */
+  --c-bg-3:     #fdfaf3;          /* ivory — cards / lightest surfaces */
+  --c-ink:      #2a1a10;          /* deep espresso — body text */
+  --c-ink-soft: #6b4d3a;          /* muted brown — secondary text */
+  --c-line:     rgba(42, 26, 16, 0.18);
 
-  --c-turquoise:       #1d7a82;
-  --c-turquoise-light: #5ff4de;
-  --c-pink:            #e04a94;
-  --c-coral:           #1d7a82;
-  --c-orange:          #2ea5ad;
-  --c-gold:            #d4a332;
-  --c-lime:            #7fa83a;
+  --c-turquoise:       #01edf8;   /* electric cyan — primary accent / italic emphasis */
+  --c-turquoise-light: #01edf8;
+  --c-pink:            #ffd6e8;   /* soft cotton pink — secondary accent */
+  --c-coral:           #01edf8;   /* alias: em accents pick up cyan */
+  --c-orange:          #ffd6e8;
+  --c-gold:            #ffd6e8;
+  --c-lime:            #01edf8;
 
-  --c-accent:   var(--c-coral);
-  --c-accent-2: var(--c-turquoise);
-  --c-cream:    #f9f2e3;
+  --c-accent:   var(--c-turquoise);
+  --c-accent-2: var(--c-pink);
+  --c-cream:    #fdfaf3;
 
   --f-display: "Monoton", serif;
   --f-script:  "Times New Roman", Times, Georgia, serif;
@@ -25,6 +25,6 @@
   --f-body:    "Inter", system-ui, sans-serif;
   --f-mono:    "JetBrains Mono", ui-monospace, monospace;
 
-  --glow-neon:      0 0 6px #5ff4de, 0 0 16px rgba(95,244,222,.7), 0 0 32px rgba(95,244,222,.4);
-  --glow-neon-pink: 0 0 6px #ff4fb8, 0 0 16px rgba(255,79,184,.65), 0 0 32px rgba(255,79,184,.35);
+  --glow-neon:      0 0 6px #01edf8, 0 0 16px rgba(1, 237, 248, .7), 0 0 32px rgba(1, 237, 248, .4);
+  --glow-neon-pink: 0 0 6px #ffd6e8, 0 0 16px rgba(255, 214, 232, .7), 0 0 32px rgba(255, 214, 232, .4);
 }

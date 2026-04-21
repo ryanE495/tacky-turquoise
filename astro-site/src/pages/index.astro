@@ -1,19 +1,29 @@
 ---
 import Base from '../layouts/Base.astro';
 import Hero from '../components/Hero.astro';
-import HeroProduct from '../components/HeroProduct.astro';
-import Categories from '../components/Categories.astro';
-import Arrivals from '../components/Arrivals.astro';
-import ArtistSpotlight from '../components/ArtistSpotlight.astro';
+import ShopNewBanner from '../components/ShopNewBanner.astro';
+import MeetTheMaker from '../components/MeetTheMaker.astro';
+import EditorialBanner from '../components/EditorialBanner.astro';
+import TaglineStack from '../components/TaglineStack.astro';
+import Reviews from '../components/Reviews.astro';
 import Footer from '../components/Footer.astro';
-import Tweaks from '../components/Tweaks.astro';
 ---
 <Base>
   <Hero />
-  <HeroProduct />
-  <Categories />
-  <Arrivals />
-  <ArtistSpotlight />
+  <ShopNewBanner />
+  <MeetTheMaker />
+  <EditorialBanner
+    eyebrow="For the collector"
+    title="For every kind of"
+    em="collector."
+    sub="For the ones who believe a piece of jewelry should have a name, a number, and a story."
+    cta="Shop now"
+    href="/shop"
+    align="left"
+    variant="short"
+    image="https://ozxbjwvwchesjgebenbv.supabase.co/storage/v1/object/public/media/6610720e-2a1b-4fbb-8c5a-fc1cb65a2099.webp"
+  />
+  <TaglineStack />
+  <Reviews />
   <Footer />
-  <Tweaks />
 </Base>

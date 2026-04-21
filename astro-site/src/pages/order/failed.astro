@@ -1,0 +1,69 @@
+---
+import Base from '../../layouts/Base.astro';
+import Footer from '../../components/Footer.astro';
+---
+<Base title="Order couldn't complete — Tacky Turquoise">
+  <section class="storefront-page">
+    <div class="storefront-page__inner">
+      <div class="order-failed">
+        <div class="order-failed__eyebrow">One of your pieces just sold</div>
+        <h1 class="order-failed__title">Someone else got there <em>first.</em></h1>
+
+        <p class="order-failed__body" id="failed-body">
+          Someone else completed their purchase for these pieces before yours went through.
+          These are true one-of-a-kind pieces, so this occasionally happens.
+        </p>
+
+        <ul class="order-failed__items" id="failed-items" hidden></ul>
+
+        <div class="order-failed__actions">
+          <a href="/cart" class="btn-primary">Return to cart <span aria-hidden="true">→</span></a>
+          <a href="/shop" class="btn-secondary">Back to shop</a>
+        </div>
+
+        <p class="order-failed__fine">
+          If your payment was processed, it will be refunded within 5 business days.
+        </p>
+      </div>
+    </div>
+  </section>
+  <Footer />
+</Base>
+
+<script>
+  const itemsEl = document.getElementById('failed-items')!;
+  const bodyEl = document.getElementById('failed-body')!;
+
+  function esc(s: string): string {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  async function init() {
+    const url = new URL(window.location.href);
+    const slugParam = url.searchParams.get('items');
+    if (!slugParam) return;
+    const slugs = slugParam.split(',').map((s) => s.trim()).filter(Boolean);
+    if (!slugs.length) return;
+
+    const titles: string[] = [];
+    await Promise.all(slugs.map(async (slug) => {
+      try {
+        const res = await fetch(`/api/products/${encodeURIComponent(slug)}`);
+        if (!res.ok) { titles.push(slug); return; }
+        const json = await res.json();
+        if (json?.data?.title) titles.push(json.data.title);
+        else titles.push(slug);
+      } catch {
+        titles.push(slug);
+      }
+    }));
+
+    if (titles.length) {
+      itemsEl.hidden = false;
+      itemsEl.innerHTML = titles.map((t) => `<li>${esc(t)}</li>`).join('');
+      bodyEl.innerHTML = `Someone else completed their purchase for <strong>${esc(titles.join(', '))}</strong> before yours went through. These are true one-of-a-kind pieces, so this occasionally happens.`;
+    }
+  }
+
+  init();
+</script>

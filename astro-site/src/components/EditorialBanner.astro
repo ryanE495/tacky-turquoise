@@ -1,0 +1,55 @@
+---
+interface Props {
+  eyebrow?: string;
+  title: string;
+  em?: string;
+  sub?: string;
+  cta?: string;
+  href?: string;
+  image?: string;
+  align?: 'left' | 'right' | 'center';
+  variant?: 'tall' | 'short';
+}
+const {
+  eyebrow,
+  title,
+  em,
+  sub,
+  cta,
+  href = '/shop',
+  image = '/images/hero.webp',
+  align = 'left',
+  variant = 'short',
+} = Astro.props;
+---
+<section class={`ed-banner ed-banner--${variant} ed-banner--${align}`}>
+  {cta ? (
+    <a class="ed-banner__link" href={href}>
+      <img class="ed-banner__img" src={image} alt="" />
+      <div class="ed-banner__overlay"></div>
+      <div class="ed-banner__content">
+        {eyebrow && <div class="ed-banner__eyebrow">{eyebrow}</div>}
+        <h2 class="ed-banner__title">
+          {title}{em && <> <em>{em}</em></>}
+        </h2>
+        {sub && <p class="ed-banner__sub">{sub}</p>}
+        <span class="ed-banner__cta">
+          <span>{cta}</span>
+          <span class="arrow" aria-hidden="true">→</span>
+        </span>
+      </div>
+    </a>
+  ) : (
+    <div class="ed-banner__link ed-banner__link--static">
+      <img class="ed-banner__img" src={image} alt="" />
+      <div class="ed-banner__overlay"></div>
+      <div class="ed-banner__content">
+        {eyebrow && <div class="ed-banner__eyebrow">{eyebrow}</div>}
+        <h2 class="ed-banner__title">
+          {title}{em && <> <em>{em}</em></>}
+        </h2>
+        {sub && <p class="ed-banner__sub">{sub}</p>}
+      </div>
+    </div>
+  )}
+</section>

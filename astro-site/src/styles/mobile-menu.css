@@ -54,8 +54,8 @@ body.mm-open { overflow: hidden; }
   color: var(--c-ink);
   background: var(--c-bg);
   background-image:
-    radial-gradient(ellipse at 100% 0%,  rgba(29,122,130,.22) 0%, transparent 50%),
-    radial-gradient(ellipse at 0%   100%, rgba(232,98,60,.18) 0%, transparent 55%),
+    radial-gradient(ellipse at 100% 0%,  rgba(1,237,248,.22) 0%, transparent 50%),
+    radial-gradient(ellipse at 0%   100%, rgba(255,214,232,.18) 0%, transparent 55%),
     radial-gradient(ellipse at 50%  50%,  rgba(242,232,213,.6) 0%, transparent 70%);
 
   opacity: 0;
@@ -76,12 +76,12 @@ body.mm-open { overflow: hidden; }
 .mm__stars {
   position: absolute; inset: 0;
   background-image:
-    radial-gradient(1.4px 1.4px at 18% 22%, rgba(29,122,130,.5), transparent),
+    radial-gradient(1.4px 1.4px at 18% 22%, rgba(1,237,248,.5), transparent),
     radial-gradient(1px   1px   at 72% 15%, rgba(212,163,50,.55), transparent),
-    radial-gradient(1.2px 1.2px at 40% 55%, rgba(29,122,130,.35), transparent),
-    radial-gradient(1px   1px   at 88% 72%, rgba(232,98,60,.4),  transparent),
+    radial-gradient(1.2px 1.2px at 40% 55%, rgba(1,237,248,.35), transparent),
+    radial-gradient(1px   1px   at 88% 72%, rgba(255,214,232,.4),  transparent),
     radial-gradient(1.3px 1.3px at 14% 84%, rgba(212,163,50,.4), transparent),
-    radial-gradient(1px   1px   at 60% 90%, rgba(29,122,130,.35), transparent);
+    radial-gradient(1px   1px   at 60% 90%, rgba(1,237,248,.35), transparent);
   pointer-events: none;
   opacity: .85;
 }
@@ -127,7 +127,7 @@ body.mm-open { overflow: hidden; }
   width: 8px; height: 8px;
   border-radius: 50%;
   background: var(--c-turquoise-light);
-  box-shadow: 0 0 0 3px rgba(95,244,222,.25), 0 0 10px rgba(95,244,222,.6);
+  box-shadow: 0 0 0 3px rgba(1,237,248,.25), 0 0 10px rgba(1,237,248,.6);
   animation: mmPulse 2.2s ease-in-out infinite;
 }
 @keyframes mmPulse {

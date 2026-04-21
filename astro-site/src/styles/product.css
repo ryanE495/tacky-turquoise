@@ -74,7 +74,7 @@
 .gallery__thumb:hover { transform: translateY(-2px); }
 .gallery__thumb.is-active {
   border-color: var(--c-turquoise);
-  box-shadow: 0 0 0 3px rgba(29,122,130,.18);
+  box-shadow: 0 0 0 3px rgba(1,237,248,.18);
 }
 .gallery__thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
@@ -92,7 +92,7 @@
 .details__eyebrow .dot {
   width: 8px; height: 8px; border-radius: 50%;
   background: var(--c-turquoise);
-  box-shadow: 0 0 0 3px rgba(29,122,130,.18);
+  box-shadow: 0 0 0 3px rgba(1,237,248,.18);
 }
 .details__eyebrow .piece-id { color: var(--c-turquoise); letter-spacing: .2em; }
 
@@ -193,10 +193,34 @@
   transition: transform .2s, background .2s, box-shadow .3s;
   box-shadow: 0 2px 10px rgba(30,42,45,.15);
 }
-.details__cta:hover { transform: translateY(-2px); background: var(--c-turquoise); box-shadow: 0 12px 28px rgba(29,122,130,.28); }
+.details__cta:hover { transform: translateY(-2px); background: var(--c-turquoise); color: var(--c-ink); box-shadow: 0 12px 28px rgba(1,237,248,.28); }
 .details__cta .arrow { transition: transform .3s; font-size: 14px; }
 .details__cta:hover .arrow { transform: translateX(3px); }
-.details__cta:disabled { background: var(--c-ink-soft); cursor: not-allowed; box-shadow: none; transform: none; }
+.details__cta:disabled { background: var(--c-ink-soft); color: var(--c-cream); cursor: not-allowed; box-shadow: none; transform: none; }
+.details__cta.is-sold { background: var(--c-ink-soft); }
+.details__cta.is-in-cart {
+  background: transparent;
+  color: var(--c-ink);
+  border: 1px solid var(--c-ink);
+  box-shadow: none;
+}
+.details__cta.is-in-cart:hover {
+  transform: translateY(-2px);
+  background: var(--c-ink);
+  color: var(--c-cream);
+}
+
+.details__confirm {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--c-turquoise);
+  opacity: 0;
+  transition: opacity .3s ease;
+  align-self: center;
+}
+.details__confirm.is-visible { opacity: 1; }
 
 .details__fav {
   width: 56px; height: 56px;

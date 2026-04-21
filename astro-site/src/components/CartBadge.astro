@@ -1,0 +1,50 @@
+---
+// Cart link + count badge. Count hidden when 0, reveals when >= 1.
+// Subscribes to cart-changed / storage events on mount (cross-tab sync).
+---
+<a href="/cart" class="cart-badge" aria-label="Cart, 0 items" data-cart-badge>
+  <svg
+    class="cart-badge__icon"
+    viewBox="0 0 24 24"
+    width="20"
+    height="20"
+    aria-hidden="true"
+  >
+    <path
+      d="M4 6.5h15.5l-1.6 9.1a2 2 0 0 1-2 1.65H9a2 2 0 0 1-2-1.65L5.3 4H3"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.6"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+    <circle cx="10" cy="20.5" r="1.25" fill="currentColor" />
+    <circle cx="16" cy="20.5" r="1.25" fill="currentColor" />
+  </svg>
+  <span class="cart-badge__label">Bag</span>
+  <span class="cart-badge__count" data-cart-count aria-hidden="true">0</span>
+</a>
+
+<script>
+  import { getCartCount, subscribeToCart } from '../lib/cart';
+
+  (function () {
+    const nodes = document.querySelectorAll<HTMLElement>('[data-cart-badge]');
+    if (!nodes.length) return;
+
+    function render(count: number) {
+      nodes.forEach((node) => {
+        const countEl = node.querySelector<HTMLElement>('[data-cart-count]');
+        if (countEl) countEl.textContent = String(count);
+        node.setAttribute(
+          'aria-label',
+          `Cart, ${count} ${count === 1 ? 'item' : 'items'}`,
+        );
+        node.classList.toggle('has-items', count > 0);
+      });
+    }
+
+    render(getCartCount());
+    subscribeToCart((ids) => render(ids.length));
+  })();
+</script>

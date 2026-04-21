@@ -1,0 +1,49 @@
+---
+// Each row is an array of phrases; rows with multiple phrases render inline
+// separated by a diamond. Four phrases → three lines on desktop.
+const lines: { text: string; em: string }[][] = [
+  [{ text: 'A Piece for Every Kind of ', em: 'Collector.' }],
+  [
+    { text: 'Jewelry to ', em: 'Last.' },
+    { text: 'Real Stone. Real ', em: 'Hands.' },
+  ],
+  [{ text: 'Heirloom, ', em: 'Untamed.' }],
+];
+
+const PLACEHOLDER = '/images/hero.webp';
+const cards = [
+  { label: 'Necklaces',              em: '!', href: '/shop?cat=necklace', image: PLACEHOLDER },
+  { label: 'Cuffs',                  em: '!', href: '/shop?cat=cuff',     image: PLACEHOLDER },
+  { label: 'The Heirloom Collection',em: '!', href: '/shop?cat=featured', image: PLACEHOLDER },
+];
+---
+<section class="browse">
+  <ul class="tagline-stack__list">
+    {lines.map((row) => (
+      <li class="tagline-stack__line">
+        {row.map((p, i) => (
+          <>
+            {i > 0 && <span class="tagline-stack__sep" aria-hidden="true">◆</span>}
+            <span class="tagline-stack__phrase">
+              <span>{p.text}</span><em>{p.em}</em>
+            </span>
+          </>
+        ))}
+      </li>
+    ))}
+  </ul>
+
+  <div class="browse__cards">
+    {cards.map((c) => (
+      <a class="cat-cta" href={c.href}>
+        <div class="cat-cta__img"><img src={c.image} alt="" /></div>
+        <div class="cat-cta__body">
+          <span class="cat-cta__label">
+            {c.label}<em>{c.em}</em>
+          </span>
+          <span class="cat-cta__browse">Browse <span class="arrow" aria-hidden="true">→</span></span>
+        </div>
+      </a>
+    ))}
+  </div>
+</section>

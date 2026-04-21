@@ -1,18 +1,21 @@
 ---
-const LOGO = 'https://bswmrfxdadcmuyhmsagv.supabase.co/storage/v1/object/public/portfolio-images/logo-new.svg';
+import CartBadge from './CartBadge.astro';
+
+interface Props {
+  current?: 'shop' | 'story' | 'journal' | null;
+}
+const { current = null } = Astro.props;
+const LOGO = 'https://ozxbjwvwchesjgebenbv.supabase.co/storage/v1/object/public/media/155d4695-2cd9-431d-9e3e-f971d48c1741.webp';
 ---
 <nav class="nav">
   <div class="nav__links">
-    <a href="/shop">Shop</a>
-    <a href="#">Artists</a>
-    <a href="#">Our Story</a>
-    <a href="#">Journal</a>
+    <a href="/shop" class:list={[current === 'shop' && 'is-active']}>Shop</a>
+    <a href="#" class:list={[current === 'story' && 'is-active']}>Our Story</a>
   </div>
-  <a href="#" class="nav__logo"><img src={LOGO} alt="Tacky Turquoise" /></a>
+  <a href="/" class="nav__logo"><img src={LOGO} alt="Tacky Turquoise" /></a>
   <div class="nav__right">
-    <a href="#">Search</a>
-    <a href="#">Account</a>
-    <a href="#" class="cart">Bag (0)</a>
+    <a href="#" class:list={[current === 'journal' && 'is-active']}>Journal</a>
+    <CartBadge />
     <button type="button" class="mobile-menu-trigger" aria-label="Open menu" aria-controls="mobile-menu" aria-expanded="false">
       <span></span><span></span><span></span>
     </button>

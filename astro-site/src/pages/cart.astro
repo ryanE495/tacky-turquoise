@@ -1,0 +1,160 @@
+---
+import Base from '../layouts/Base.astro';
+import Footer from '../components/Footer.astro';
+---
+<Base title="Cart — Tacky Turquoise">
+  <section class="storefront-page">
+    <div class="storefront-page__inner">
+      <div class="storefront-page__crumb"><a href="/">Home</a> &nbsp;/&nbsp; Cart</div>
+      <h1 class="storefront-page__title">Your <em>cart.</em></h1>
+
+      <div id="cart-banner"></div>
+
+      <div id="cart-loading" class="storefront-loading">Loading your cart…</div>
+
+      <div id="cart-empty" hidden>
+        <div class="cart-empty">
+          <h2 class="cart-empty__title">Your cart is <em>empty.</em></h2>
+          <p class="cart-empty__sub">Every piece is signed, dated, one of one. Browse the shop and find yours.</p>
+          <a class="cart-empty__link" href="/shop">Visit the shop <span aria-hidden="true">→</span></a>
+        </div>
+      </div>
+
+      <div id="cart-main" hidden class="cart-layout">
+        <div id="cart-items" class="cart-items"></div>
+        <aside id="cart-summary"></aside>
+      </div>
+    </div>
+  </section>
+  <Footer />
+</Base>
+
+<script>
+  import { getCart, removeFromCart, removeManyFromCart, subscribeToCart } from '../lib/cart';
+  import { formatPrice } from '../lib/format';
+  import { renderCartItemRow, sumCents, validateCart, type CartItemData } from '../lib/cart-render';
+
+  const bannerEl = document.getElementById('cart-banner')!;
+  const loadingEl = document.getElementById('cart-loading')!;
+  const emptyEl = document.getElementById('cart-empty')!;
+  const mainEl = document.getElementById('cart-main')!;
+  const itemsEl = document.getElementById('cart-items')!;
+  const summaryEl = document.getElementById('cart-summary')!;
+
+  let available: CartItemData[] = [];
+
+  function showEmpty() {
+    loadingEl.hidden = true;
+    mainEl.hidden = true;
+    emptyEl.hidden = false;
+  }
+
+  function showBanner(removedTitles: string[]) {
+    if (!removedTitles.length) {
+      bannerEl.innerHTML = '';
+      return;
+    }
+    const list = removedTitles.map((t) => `"${t}"`).join(', ');
+    bannerEl.innerHTML = `
+      <div class="callout" role="status">
+        <div>
+          <span class="callout__label">Heads up</span>
+          <p>One or more pieces in your cart sold before you checked out and have been removed: ${list}.</p>
+        </div>
+        <button type="button" class="callout__close" aria-label="Dismiss">×</button>
+      </div>
+    `;
+    bannerEl.querySelector<HTMLButtonElement>('.callout__close')?.addEventListener('click', () => {
+      bannerEl.innerHTML = '';
+    });
+  }
+
+  function renderSummary(items: CartItemData[]) {
+    const subtotal = sumCents(items);
+    summaryEl.innerHTML = `
+      <div class="order-summary">
+        <div class="order-summary__heading">Order summary</div>
+        <div class="order-summary__lines">
+          <div class="order-summary__line">
+            <span class="label">Subtotal</span>
+            <span class="value">${formatPrice(subtotal)}</span>
+          </div>
+          <div class="order-summary__line order-summary__line--muted">
+            <span class="label">Shipping</span>
+            <span class="value">Calculated at checkout</span>
+          </div>
+        </div>
+        <div class="order-summary__total">
+          <span class="label">Total</span>
+          <span class="value">${formatPrice(subtotal)}</span>
+        </div>
+        <a href="/checkout" class="order-summary__cta">
+          <span>Check out</span>
+          <span class="arrow" aria-hidden="true">→</span>
+        </a>
+        <a href="/shop" class="order-summary__continue">Continue shopping</a>
+      </div>
+    `;
+  }
+
+  function renderAll() {
+    if (!available.length) {
+      showEmpty();
+      return;
+    }
+    loadingEl.hidden = true;
+    emptyEl.hidden = true;
+    mainEl.hidden = false;
+    itemsEl.innerHTML = available.map((it) => renderCartItemRow(it)).join('');
+    renderSummary(available);
+  }
+
+  itemsEl.addEventListener('click', (e) => {
+    const t = e.target as HTMLElement;
+    const btn = t.closest<HTMLButtonElement>('.cart-row__remove');
+    if (!btn) return;
+    const id = btn.dataset.remove!;
+    removeFromCart(id);
+    available = available.filter((x) => x.id !== id);
+    renderAll();
+  });
+
+  async function validate() {
+    const ids = getCart();
+    if (!ids.length) {
+      showEmpty();
+      return;
+    }
+
+    // If redirected from checkout with items stripped, show banner immediately.
+    const url = new URL(window.location.href);
+    const fromCheckout = url.searchParams.get('unavailable') === '1';
+
+    try {
+      const result = await validateCart(ids);
+
+      const unavailableIds = result.unavailable.map((u) => u.id);
+      const unavailableTitles = result.unavailable
+        .map((u) => u.title)
+        .filter((x): x is string => !!x);
+
+      if (unavailableIds.length) {
+        removeManyFromCart(unavailableIds);
+        showBanner(unavailableTitles.length ? unavailableTitles : ['one or more pieces']);
+      } else if (fromCheckout) {
+        showBanner(['one or more pieces']);
+      }
+
+      available = result.available;
+      renderAll();
+    } catch {
+      loadingEl.innerHTML = '<p class="storefront-error">We couldn\u2019t load your cart. Please refresh the page.</p>';
+    }
+  }
+
+  subscribeToCart((ids) => {
+    if (!ids.length) showEmpty();
+  });
+
+  validate();
+</script>

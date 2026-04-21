@@ -1,0 +1,53 @@
+---
+const reviews = [
+  {
+    quote: 'My favorite necklace. Ash exceeded my expectations — this piece is special to me in a way I can\'t quite explain.',
+    name: 'Madison M.',
+    piece: 'The Kingman Strand',
+  },
+  {
+    quote: 'Dainty, timeless, perfect for layering. Gets compliments every time I wear it.',
+    name: 'Sarah R.',
+    piece: 'The Cosmo Necklace',
+  },
+  {
+    quote: 'I am 100% amazed at the craftsmanship. Worth every day of the wait — my favorite piece, full stop.',
+    name: 'Zoë W.',
+    piece: 'The Cluster Ring',
+  },
+  {
+    quote: 'Obsessed is an understatement. The moment I saw it listed I knew it was mine. Stunning in person.',
+    name: 'Brittany D.',
+    piece: 'High Roller Necklace',
+  },
+  {
+    quote: 'The best addition to my stack. Daily wear. Quality is insane and I always get compliments.',
+    name: 'Casey D.',
+    piece: 'Royston Cuff',
+  },
+  {
+    quote: 'Ordered the Tate Necklace with fresh-water pearls. Exceeded expectations at an impossibly fair price.',
+    name: 'Sarah A.',
+    piece: 'The Tate Necklace',
+  },
+];
+---
+<section class="reviews">
+  <div class="reviews__head">
+    <div class="reviews__eyebrow">★★★★★  ·  5.00 from 71 reviews</div>
+    <h2 class="reviews__title">Customers are <em>saying.</em></h2>
+  </div>
+  <div class="reviews__grid">
+    {reviews.map((r) => (
+      <figure class="review">
+        <div class="review__stars" aria-hidden="true">★ ★ ★ ★ ★</div>
+        <blockquote class="review__quote">"{r.quote}"</blockquote>
+        <figcaption class="review__cap">
+          <span class="review__name">{r.name}</span>
+          <span class="review__sep" aria-hidden="true">—</span>
+          <span class="review__piece">{r.piece}</span>
+        </figcaption>
+      </figure>
+    ))}
+  </div>
+</section>

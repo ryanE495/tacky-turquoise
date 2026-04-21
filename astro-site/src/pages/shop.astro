@@ -5,11 +5,11 @@ import '../styles/components.css';
 import '../styles/shop.css';
 import '../styles/mobile-menu.css';
 
+import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 import MobileMenu from '../components/MobileMenu.astro';
 import { fetchPublishedProducts, storageUrl, formatPrice } from '../lib/supabase';
 
-const LOGO = 'https://bswmrfxdadcmuyhmsagv.supabase.co/storage/v1/object/public/portfolio-images/logo-new.svg';
 const FALLBACK_IMG = 'https://bswmrfxdadcmuyhmsagv.supabase.co/storage/v1/object/public/portfolio-images/test.jpeg';
 
 const products = await fetchPublishedProducts();
@@ -99,23 +99,7 @@ const titleHtml = (t: string) => t.replace(/(\b\w+)$/, '<em>$1</em>');
     />
   </head>
   <body class="density-4 card-standard">
-    <nav class="shop-nav">
-      <div class="shop-nav__links">
-        <a href="/shop" class="is-active">Shop</a>
-        <a href="/">Artists</a>
-        <a href="/">Our Story</a>
-        <a href="/">Journal</a>
-      </div>
-      <a href="/" class="shop-nav__logo"><img src={LOGO} alt="Tacky Turquoise" /></a>
-      <div class="shop-nav__right">
-        <a href="#">Search</a>
-        <a href="#">Account</a>
-        <a href="#" class="cart">Bag (0)</a>
-        <button type="button" class="mobile-menu-trigger" aria-label="Open menu" aria-controls="mobile-menu" aria-expanded="false">
-          <span></span><span></span><span></span>
-        </button>
-      </div>
-    </nav>
+    <Nav current="shop" />
 
     <header class="shop-header">
       <div class="shop-header__crumb"><a href="/">Home</a> &nbsp;/&nbsp; Shop &nbsp;/&nbsp; All Pieces</div>

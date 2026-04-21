@@ -1,16 +1,14 @@
 ---
 import Nav from './Nav.astro';
 
-// Gallery tiles — hero.webp cropped at varying object-positions for a collage feel
+// Gallery tiles — each maps to a unique image + object-position
 const tiles = [
-  '10% 20%',
-  '70% 10%',
-  '30% 80%',
-  '85% 60%',
-  '50% 50%',
-  '20% 65%',
-  '80% 30%',
-  '45% 15%',
+  { src: 'https://ozxbjwvwchesjgebenbv.supabase.co/storage/v1/object/public/media/2d6b0b22-9dbc-42b2-8cae-e5acd419875c.webp', pos: '50% 50%' },
+  { src: 'https://ozxbjwvwchesjgebenbv.supabase.co/storage/v1/object/public/media/15a37aad-7339-4d64-ba14-a9fd944718e8.webp', pos: '50% 50%' },
+  { src: 'https://ozxbjwvwchesjgebenbv.supabase.co/storage/v1/object/public/media/6610720e-2a1b-4fbb-8c5a-fc1cb65a2099.webp', pos: '50% 50%' },
+  { src: 'https://ozxbjwvwchesjgebenbv.supabase.co/storage/v1/object/public/media/41c87e3c-212d-4ca3-8e8b-7bfd00fad187.webp', pos: '50% 50%' },
+  { src: 'https://ozxbjwvwchesjgebenbv.supabase.co/storage/v1/object/public/media/4fbd75cc-e1d2-4646-a4ec-81ec54979a1c.webp', pos: '50% 50%' },
+  { src: 'https://ozxbjwvwchesjgebenbv.supabase.co/storage/v1/object/public/media/0f54f65c-3c9a-4925-99a7-a8d88768dc77.webp', pos: '50% 50%' },
 ];
 
 const dropTargetISO = '2026-05-20T18:00:00-06:00';
@@ -23,9 +21,9 @@ const dropHuman = 'Spring Drop \u201926  ·  May 20  ·  6 PM MT';
   <!-- Two-column stage: gallery left, text right -->
   <div class="hero2__stage">
     <div class="hero2__gallery" aria-hidden="true">
-      {tiles.map((pos) => (
+      {tiles.map((t) => (
         <div class="hero2__tile">
-          <img src="/images/hero.webp" alt="" style={`object-position: ${pos};`} loading="eager" />
+          <img src={t.src} alt="" style={`object-position: ${t.pos};`} loading="eager" />
         </div>
       ))}
     </div>
@@ -59,31 +57,31 @@ const dropHuman = 'Spring Drop \u201926  ·  May 20  ·  6 PM MT';
 <!-- NEXT DROP COUNTDOWN -->
 <section class="next-drop" id="next-drop">
   <div class="next-drop__inner">
-    <div class="next-drop__eyebrow">
-      <span class="dot" aria-hidden="true"></span>
-      <span>{dropHuman}</span>
+    <div class="next-drop__lead">
+      <div class="next-drop__eyebrow">
+        <span class="dot" aria-hidden="true"></span>
+        <span>{dropHuman}</span>
+      </div>
+      <h2 class="next-drop__title">Next <em>drop.</em></h2>
+      <a href="/shop" class="next-drop__cta">
+        <span>Shop the drop</span>
+        <span class="arrow" aria-hidden="true">→</span>
+      </a>
     </div>
 
-    <h2 class="next-drop__title">
-      Next <em>drop.</em>
-    </h2>
+    <div class="next-drop__right">
+      <div class="countdown" id="countdown" data-target={dropTargetISO} aria-live="polite">
+        <div class="countdown__cell"><span class="n" data-unit="d">00</span><span class="lbl">Days</span></div>
+        <div class="countdown__sep" aria-hidden="true">:</div>
+        <div class="countdown__cell"><span class="n" data-unit="h">00</span><span class="lbl">Hours</span></div>
+        <div class="countdown__sep" aria-hidden="true">:</div>
+        <div class="countdown__cell"><span class="n" data-unit="m">00</span><span class="lbl">Minutes</span></div>
+        <div class="countdown__sep" aria-hidden="true">:</div>
+        <div class="countdown__cell"><span class="n" data-unit="s">00</span><span class="lbl">Seconds</span></div>
+      </div>
 
-    <div class="countdown" id="countdown" data-target={dropTargetISO} aria-live="polite">
-      <div class="countdown__cell"><span class="n" data-unit="d">00</span><span class="lbl">Days</span></div>
-      <div class="countdown__sep" aria-hidden="true">:</div>
-      <div class="countdown__cell"><span class="n" data-unit="h">00</span><span class="lbl">Hours</span></div>
-      <div class="countdown__sep" aria-hidden="true">:</div>
-      <div class="countdown__cell"><span class="n" data-unit="m">00</span><span class="lbl">Minutes</span></div>
-      <div class="countdown__sep" aria-hidden="true">:</div>
-      <div class="countdown__cell"><span class="n" data-unit="s">00</span><span class="lbl">Seconds</span></div>
+      <div class="countdown__live" id="countdown-live" hidden>The drop is <em>live</em>. Go.</div>
     </div>
-
-    <div class="countdown__live" id="countdown-live" hidden>The drop is <em>live</em>. Go.</div>
-
-    <a href="/shop" class="next-drop__cta">
-      <span>Shop the drop</span>
-      <span class="arrow" aria-hidden="true">→</span>
-    </a>
   </div>
 </section>
 

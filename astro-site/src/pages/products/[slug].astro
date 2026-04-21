@@ -6,11 +6,11 @@ import '../../styles/shop.css';
 import '../../styles/product.css';
 import '../../styles/mobile-menu.css';
 
+import Nav from '../../components/Nav.astro';
 import Footer from '../../components/Footer.astro';
 import MobileMenu from '../../components/MobileMenu.astro';
 import { fetchPublishedProducts, storageUrl, formatPrice, type ProductWithImages } from '../../lib/supabase';
 
-const LOGO = 'https://bswmrfxdadcmuyhmsagv.supabase.co/storage/v1/object/public/portfolio-images/logo-new.svg';
 const FALLBACK_IMG = 'https://bswmrfxdadcmuyhmsagv.supabase.co/storage/v1/object/public/portfolio-images/test.jpeg';
 
 export async function getStaticPaths() {
@@ -55,23 +55,7 @@ const description = product.description ?? '';
     />
   </head>
   <body>
-    <nav class="shop-nav">
-      <div class="shop-nav__links">
-        <a href="/shop">Shop</a>
-        <a href="/">Artists</a>
-        <a href="/">Our Story</a>
-        <a href="/">Journal</a>
-      </div>
-      <a href="/" class="shop-nav__logo"><img src={LOGO} alt="Tacky Turquoise" /></a>
-      <div class="shop-nav__right">
-        <a href="#">Search</a>
-        <a href="#">Account</a>
-        <a href="#" class="cart">Bag (0)</a>
-        <button type="button" class="mobile-menu-trigger" aria-label="Open menu" aria-controls="mobile-menu" aria-expanded="false">
-          <span></span><span></span><span></span>
-        </button>
-      </div>
-    </nav>
+    <Nav current="shop" />
 
     <section class="product">
       <div class="product__crumb">
@@ -132,13 +116,19 @@ const description = product.description ?? '';
           </ul>
 
           <div class="details__actions">
-            <button class="details__cta" disabled={!available} id="add-to-bag">
-              <span>{isSold ? 'Sold' : isReserved ? 'Reserved' : 'Add to Bag'}</span>
-              <span class="arrow">→</span>
+            <button
+              class="details__cta"
+              id="add-to-bag"
+              data-product-id={product.id}
+              data-initial-status={isSold ? 'sold' : isReserved ? 'reserved' : 'available'}
+            >
+              <span class="label">{isSold ? 'Sold' : isReserved ? 'Reserved' : 'Add to Bag'}</span>
+              <span class="arrow" aria-hidden="true">→</span>
             </button>
             <button class="details__fav" aria-label="Save" id="fav-btn">
               <svg viewBox="0 0 24 24"><path d="M12 20s-7-4.5-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 5c-2.5 4.5-9.5 9-9.5 9z" /></svg>
             </button>
+            <span class="details__confirm" id="add-confirm" aria-live="polite" hidden>Added to cart</span>
           </div>
 
           <div class="details__trust">
@@ -212,6 +202,99 @@ const description = product.description ?? '';
       });
 
       favBtn?.addEventListener('click', () => favBtn.classList.toggle('is-on'));
+    </script>
+
+    <script>
+      import { addToCart, isInCart, subscribeToCart } from '../../lib/cart';
+      import { supabase } from '../../lib/supabase';
+
+      (function () {
+        const btn = document.getElementById('add-to-bag') as HTMLButtonElement | null;
+        const confirmEl = document.getElementById('add-confirm');
+        if (!btn) return;
+
+        const productId = btn.dataset.productId!;
+        const initialStatus = btn.dataset.initialStatus as 'available' | 'sold' | 'reserved';
+        const label = btn.querySelector<HTMLElement>('.label')!;
+        const arrow = btn.querySelector<HTMLElement>('.arrow');
+
+        let status: 'available' | 'sold' | 'reserved' = initialStatus;
+        let confirmTimer: number | null = null;
+
+        function render() {
+          if (status === 'sold') {
+            btn.disabled = true;
+            btn.classList.remove('is-in-cart');
+            btn.classList.add('is-sold');
+            label.textContent = 'Sold';
+            if (arrow) arrow.hidden = true;
+            return;
+          }
+          if (status === 'reserved') {
+            btn.disabled = true;
+            btn.classList.remove('is-in-cart');
+            label.textContent = 'Reserved';
+            if (arrow) arrow.hidden = true;
+            return;
+          }
+          if (arrow) arrow.hidden = false;
+          btn.disabled = false;
+          if (isInCart(productId)) {
+            btn.classList.add('is-in-cart');
+            label.textContent = 'In cart — view cart';
+          } else {
+            btn.classList.remove('is-in-cart');
+            label.textContent = 'Add to Bag';
+          }
+        }
+
+        function flashConfirm() {
+          if (!confirmEl) return;
+          confirmEl.hidden = false;
+          confirmEl.classList.add('is-visible');
+          if (confirmTimer) window.clearTimeout(confirmTimer);
+          confirmTimer = window.setTimeout(() => {
+            confirmEl.classList.remove('is-visible');
+            window.setTimeout(() => { confirmEl.hidden = true; }, 400);
+          }, 2000);
+        }
+
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          if (status !== 'available') return;
+          if (isInCart(productId)) {
+            window.location.href = '/cart';
+            return;
+          }
+          addToCart(productId);
+          render();
+          flashConfirm();
+        });
+
+        subscribeToCart(() => render());
+
+        // Refetch live status so a product sold after build is reflected.
+        (async () => {
+          try {
+            const { data, error } = await supabase
+              .from('products')
+              .select('status, sold_at, reserved_until')
+              .eq('id', productId)
+              .maybeSingle();
+            if (error || !data) return;
+            if (data.sold_at || data.status !== 'published') {
+              status = 'sold';
+            } else if (data.reserved_until && new Date(data.reserved_until).getTime() > Date.now()) {
+              status = 'reserved';
+            } else {
+              status = 'available';
+            }
+            render();
+          } catch { /* ignore network errors — keep initial state */ }
+        })();
+
+        render();
+      })();
     </script>
   </body>
 </html>
