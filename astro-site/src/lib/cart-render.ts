@@ -82,6 +82,40 @@ export async function validateCart(ids: string[]): Promise<ValidateResult> {
   return { available, unavailable };
 }
 
+export interface ValidateApiResponse {
+  ok: boolean;
+  data?: {
+    available: CartItemData[];
+    unavailable: Array<{ id: string; reason: string; title?: string }>;
+  };
+  error?: { code: string; message: string };
+}
+
+/**
+ * Server-validated cart check. Posts to the backend at PUBLIC_API_URL so the
+ * server sees the same validation context it'll use at checkout time.
+ *
+ * Use validateCart() for fast read-side rendering (queries Supabase directly).
+ * Use validateCartViaApi() before write operations where the backend must be
+ * the source of truth.
+ */
+export async function validateCartViaApi(productIds: string[]): Promise<ValidateApiResponse> {
+  const apiBase = import.meta.env.PUBLIC_API_URL;
+  try {
+    const res = await fetch(`${apiBase}/api/cart/validate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ product_ids: productIds }),
+    });
+    return (await res.json()) as ValidateApiResponse;
+  } catch (e) {
+    return {
+      ok: false,
+      error: { code: 'network_error', message: 'Could not reach the server. Please try again.' },
+    };
+  }
+}
+
 function esc(value: unknown): string {
   if (value == null) return '';
   return String(value)

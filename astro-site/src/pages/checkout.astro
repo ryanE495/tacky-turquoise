@@ -15,8 +15,6 @@ const US_STATES = [
   ['TN','Tennessee'],['TX','Texas'],['UT','Utah'],['VT','Vermont'],['VA','Virginia'],
   ['WA','Washington'],['WV','West Virginia'],['WI','Wisconsin'],['WY','Wyoming'],
 ];
-
-const SHIPPING_CENTS = 800;
 ---
 <Base title="Checkout — Tacky Turquoise">
   <section class="storefront-page">
@@ -109,11 +107,18 @@ const SHIPPING_CENTS = 800;
 </Base>
 
 <script>
-  import { getCart, removeManyFromCart, clearCart } from '../lib/cart';
+  import { getCart, removeManyFromCart } from '../lib/cart';
   import { formatPrice } from '../lib/format';
   import { renderSummaryRow, sumCents, validateCart, type CartItemData } from '../lib/cart-render';
 
-  const SHIPPING = 800;
+  const API_BASE = import.meta.env.PUBLIC_API_URL;
+
+  interface ShippingQuote {
+    rate_id: string;
+    amount_cents: number;
+    service_level: string;
+    estimated_days: number;
+  }
 
   const loadingEl = document.getElementById('checkout-loading')!;
   const mainEl = document.getElementById('checkout-main')!;
@@ -123,9 +128,98 @@ const SHIPPING_CENTS = 800;
 
   let available: CartItemData[] = [];
 
-  function renderSummary(items: CartItemData[]) {
+  // ---- shipping quote state ----
+  let shippingQuote: ShippingQuote | null = null;
+  let quoteLoading = false;
+  let quoteError: string | null = null;
+  let quoteAbortController: AbortController | null = null;
+  let quoteDebounce: number | null = null;
+
+  function escapeHtml(s: string): string {
+    return s
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function fieldValue(name: string): string {
+    const el = formEl.elements.namedItem(name) as HTMLInputElement | HTMLSelectElement | null;
+    return (el?.value ?? '').trim();
+  }
+
+  function isAddressComplete(): boolean {
+    return (
+      !!fieldValue('line1') &&
+      !!fieldValue('city') &&
+      !!fieldValue('state') &&
+      /^\d{5}(-\d{4})?$/.test(fieldValue('zip'))
+    );
+  }
+
+  // ---- summary rendering ----
+  function renderSummary() {
+    const items = available;
     const subtotal = sumCents(items);
-    const total = subtotal + SHIPPING;
+    const addressComplete = isAddressComplete();
+
+    let shippingRowHtml = '';
+    let totalHtml = '';
+
+    if (quoteError) {
+      shippingRowHtml = `
+        <div class="order-summary__line" role="alert">
+          <span class="label">Shipping</span>
+          <span class="value" style="color: var(--c-coral); text-transform: none; letter-spacing: .02em;">${escapeHtml(quoteError)}</span>
+        </div>
+      `;
+    } else if (quoteLoading) {
+      shippingRowHtml = `
+        <div class="order-summary__line order-summary__line--muted">
+          <span class="label">Shipping</span>
+          <span class="value">Calculating<span aria-hidden="true">&hellip;</span></span>
+        </div>
+      `;
+      totalHtml = `
+        <div class="order-summary__total">
+          <span class="label">Estimated total</span>
+          <span class="value" style="opacity:.5">${formatPrice(subtotal)}</span>
+        </div>
+      `;
+    } else if (shippingQuote) {
+      const total = subtotal + shippingQuote.amount_cents;
+      const days = shippingQuote.estimated_days;
+      const daysText = days ? ' &middot; ~' + days + ' days' : '';
+      shippingRowHtml = `
+        <div class="order-summary__line">
+          <span class="label">
+            Shipping
+            <span class="value" style="display:block; font-size: 10px; color: var(--c-ink-soft); letter-spacing: .05em; text-transform: none; margin-top: 3px;">${escapeHtml(shippingQuote.service_level)}${daysText}</span>
+          </span>
+          <span class="value">${formatPrice(shippingQuote.amount_cents)}</span>
+        </div>
+        <div class="order-summary__line order-summary__line--muted">
+          <span class="label">Tax</span>
+          <span class="value">Calculated at payment</span>
+        </div>
+      `;
+      totalHtml = `
+        <div class="order-summary__total">
+          <span class="label">Estimated total</span>
+          <span class="value">${formatPrice(total)}</span>
+        </div>
+      `;
+    } else {
+      shippingRowHtml = `
+        <div class="order-summary__line order-summary__line--muted">
+          <span class="label">Shipping</span>
+          <span class="value">${addressComplete ? '—' : 'Enter address to calculate'}</span>
+        </div>
+      `;
+    }
+
+    const submitDisabled = !(shippingQuote && !quoteLoading && !quoteError);
+
     summaryEl.innerHTML = `
       <div class="order-summary">
         <div class="order-summary__heading">Order summary</div>
@@ -137,28 +231,19 @@ const SHIPPING_CENTS = 800;
             <span class="label">Subtotal</span>
             <span class="value">${formatPrice(subtotal)}</span>
           </div>
-          <div class="order-summary__line">
-            <span class="label">Shipping</span>
-            <span class="value">Flat rate ${formatPrice(SHIPPING)}</span>
-          </div>
-          <div class="order-summary__line order-summary__line--muted">
-            <span class="label">Tax</span>
-            <span class="value">Calculated at payment</span>
-          </div>
+          ${shippingRowHtml}
         </div>
-        <div class="order-summary__total">
-          <span class="label">Estimated total</span>
-          <span class="value">${formatPrice(total)}</span>
-        </div>
-        <button type="submit" form="checkout-form" id="submit-btn" class="order-summary__cta">
+        ${totalHtml}
+        <button type="submit" form="checkout-form" id="submit-btn" class="order-summary__cta" ${submitDisabled ? 'disabled' : ''}>
           <span class="label">Complete order</span>
-          <span class="arrow" aria-hidden="true">→</span>
+          <span class="arrow" aria-hidden="true">&rarr;</span>
         </button>
         <p class="order-summary__fine">You'll be redirected to secure payment.</p>
       </div>
     `;
   }
 
+  // ---- field validation ----
   function setFieldError(name: string, msg: string | null) {
     const input = formEl.elements.namedItem(name) as (HTMLInputElement | HTMLSelectElement | null);
     const err = document.getElementById(`${name}-error`);
@@ -177,17 +262,17 @@ const SHIPPING_CENTS = 800;
     const input = formEl.elements.namedItem(name) as (HTMLInputElement | HTMLSelectElement | null);
     if (!input) return true;
     const v = (input.value ?? '').trim();
-    if (!input.hasAttribute('required') ? false : !v) {
+    if (input.hasAttribute('required') && !v) {
       setFieldError(name, 'Required');
       return false;
     }
-    if (name === 'email') {
+    if (name === 'email' && v) {
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) {
         setFieldError(name, 'Enter a valid email');
         return false;
       }
     }
-    if (name === 'zip') {
+    if (name === 'zip' && v) {
       if (!/^\d{5}(-\d{4})?$/.test(v)) {
         setFieldError(name, 'Enter a valid ZIP');
         return false;
@@ -207,12 +292,112 @@ const SHIPPING_CENTS = 800;
       <div class="callout callout--error" role="alert">
         <div>
           <span class="callout__label">Unable to complete order</span>
-          <p>${msg}</p>
+          <p>${escapeHtml(msg)}</p>
         </div>
       </div>
     `;
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
+
+  // ---- shipping quote ----
+  async function fetchShippingQuote() {
+    if (!isAddressComplete() || !available.length) return;
+
+    if (quoteAbortController) quoteAbortController.abort();
+    quoteAbortController = new AbortController();
+
+    quoteLoading = true;
+    quoteError = null;
+    renderSummary();
+
+    const payload = {
+      product_ids: available.map((a) => a.id),
+      shipping_address: {
+        name: fieldValue('full_name'),
+        street1: fieldValue('line1'),
+        street2: fieldValue('line2') || undefined,
+        city: fieldValue('city'),
+        state: fieldValue('state'),
+        zip: fieldValue('zip'),
+        country: 'US',
+      },
+    };
+
+    try {
+      const res = await fetch(`${API_BASE}/api/shipping/quote`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        signal: quoteAbortController.signal,
+      });
+      const json = await res.json();
+
+      if (json?.ok && json.data) {
+        shippingQuote = {
+          rate_id: json.data.rate_id,
+          amount_cents: json.data.amount_cents,
+          service_level: json.data.service_level ?? 'Shipping',
+          estimated_days: json.data.estimated_days ?? 0,
+        };
+        quoteError = null;
+      } else if (!json?.ok && json?.error?.code === 'items_unavailable') {
+        const unavailableIds: string[] = (json.error.unavailable ?? []).map((u: { id: string }) => u.id);
+        removeManyFromCart(unavailableIds);
+        window.location.href = '/cart?unavailable=1';
+        return;
+      } else if (!json?.ok && (json?.error?.code === 'invalid_address' || json?.error?.code === 'no_rates_available')) {
+        shippingQuote = null;
+        quoteError = json.error.message || 'We could not calculate shipping for this address.';
+      } else {
+        shippingQuote = null;
+        quoteError = 'Could not calculate shipping. Please check your address and try again.';
+      }
+    } catch (err: any) {
+      if (err?.name === 'AbortError') return;
+      shippingQuote = null;
+      quoteError = 'Could not calculate shipping. Please check your address and try again.';
+    } finally {
+      quoteLoading = false;
+      quoteAbortController = null;
+      renderSummary();
+    }
+  }
+
+  function scheduleShippingQuote() {
+    if (quoteDebounce !== null) window.clearTimeout(quoteDebounce);
+    quoteDebounce = window.setTimeout(() => {
+      quoteDebounce = null;
+      void fetchShippingQuote();
+    }, 500);
+  }
+
+  function onAddressFieldChange() {
+    // Invalidate the existing quote immediately so the Complete button can not
+    // be submitted with a stale rate for a different address.
+    shippingQuote = null;
+    quoteError = null;
+    if (isAddressComplete()) {
+      quoteLoading = true;
+      renderSummary();
+      scheduleShippingQuote();
+    } else {
+      quoteLoading = false;
+      if (quoteAbortController) quoteAbortController.abort();
+      renderSummary();
+    }
+  }
+
+  const ADDRESS_FIELDS = ['line1', 'line2', 'city', 'state', 'zip', 'full_name'];
+  formEl.addEventListener('input', (e) => {
+    const t = e.target as HTMLElement;
+    const name = (t as HTMLInputElement).name;
+    if (name && ADDRESS_FIELDS.includes(name)) onAddressFieldChange();
+  });
+  formEl.addEventListener('change', (e) => {
+    const t = e.target as HTMLElement;
+    const name = (t as HTMLInputElement).name;
+    if (name && ADDRESS_FIELDS.includes(name)) onAddressFieldChange();
+  });
 
   formEl.addEventListener('blur', (e) => {
     const t = e.target as HTMLElement;
@@ -222,16 +407,19 @@ const SHIPPING_CENTS = 800;
     }
   }, true);
 
+  // ---- submit ----
   formEl.addEventListener('submit', async (e) => {
     e.preventDefault();
     formErrorEl.innerHTML = '';
     if (!validateAll()) return;
+    if (!shippingQuote) return;
+
     const btn = document.getElementById('submit-btn') as HTMLButtonElement | null;
     if (!btn) return;
     btn.disabled = true;
     const labelEl = btn.querySelector<HTMLElement>('.label');
     const originalLabel = labelEl?.textContent ?? '';
-    if (labelEl) labelEl.textContent = 'Processing…';
+    if (labelEl) labelEl.textContent = 'Processing...';
 
     const data = new FormData(formEl);
     const payload = {
@@ -249,37 +437,32 @@ const SHIPPING_CENTS = 800;
         postal_code: String(data.get('zip') ?? '').trim(),
         country: 'US',
       },
+      shipping_rate_id: shippingQuote.rate_id,
       customer_notes: String(data.get('notes') ?? '').trim() || null,
     };
 
     try {
-      const res = await fetch('/api/checkout/create', {
+      const res = await fetch(`${API_BASE}/api/checkout/create`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
       const json = await res.json();
+
       if (json.ok && json.data?.redirect_to) {
         window.location.href = json.data.redirect_to;
         return;
       }
+
       if (!json.ok && json.error?.code === 'items_unavailable') {
-        const unavailable = (json.error.unavailable as Array<{ id: string; title?: string }>) ?? [];
-        const ids = unavailable.map((u) => u.id);
-        const titles = unavailable.map((u) => u.title).filter(Boolean);
-        removeManyFromCart(ids);
-        if (getCart().length === 0) {
-          window.location.href = '/shop?sold=1';
-          return;
-        }
-        const list = titles.length ? titles.join(', ') : 'one or more pieces';
-        showFormError(`${list} sold before your order went through. Your cart has been updated — please review and try again.`);
-        btn.disabled = false;
-        if (labelEl) labelEl.textContent = originalLabel;
-        window.setTimeout(() => { window.location.href = '/cart?unavailable=1'; }, 1800);
+        const unavailableIds: string[] = (json.error.unavailable ?? []).map((u: { id: string }) => u.id);
+        removeManyFromCart(unavailableIds);
+        const remaining = getCart().length;
+        window.location.href = remaining === 0 ? '/shop?sold=1' : '/cart?unavailable=1';
         return;
       }
-      showFormError('Something went wrong. Please try again.');
+
+      showFormError(json?.error?.message || 'Checkout failed. Please try again.');
       btn.disabled = false;
       if (labelEl) labelEl.textContent = originalLabel;
     } catch {
@@ -289,6 +472,7 @@ const SHIPPING_CENTS = 800;
     }
   });
 
+  // ---- init ----
   async function init() {
     const ids = getCart();
     if (!ids.length) {
@@ -308,11 +492,11 @@ const SHIPPING_CENTS = 800;
         window.location.href = '/shop';
         return;
       }
-      renderSummary(available);
+      renderSummary();
       loadingEl.hidden = true;
       mainEl.hidden = false;
     } catch {
-      loadingEl.innerHTML = '<p class="storefront-error">We couldn\u2019t load your cart. Please return to <a href="/cart">your cart</a> and try again.</p>';
+      loadingEl.innerHTML = '<p class="storefront-error">We could not load your cart. Please return to <a href="/cart">your cart</a> and try again.</p>';
     }
   }
 

@@ -5,13 +5,31 @@ import Footer from '../../components/Footer.astro';
 <Base title="Order confirmed — Tacky Turquoise">
   <section class="storefront-page">
     <div class="storefront-page__inner">
-      <div id="success-loading" class="storefront-loading">Loading your order…</div>
+      <div id="success-loading" class="storefront-loading">Confirming your payment<span aria-hidden="true">&hellip;</span></div>
+
+      <div id="success-cancelled" hidden class="order-failed">
+        <div class="order-failed__eyebrow">Checkout cancelled</div>
+        <h1 class="order-failed__title">Your checkout was <em>cancelled.</em></h1>
+        <p class="order-failed__body">Your cart has been saved. You can return to checkout anytime.</p>
+        <div class="order-failed__actions">
+          <a href="/cart" class="btn-primary">Return to cart <span aria-hidden="true">&rarr;</span></a>
+          <a href="/shop" class="btn-secondary">Keep shopping</a>
+        </div>
+      </div>
 
       <div id="success-notfound" hidden>
         <div class="cart-empty">
           <h2 class="cart-empty__title">We couldn't find that <em>order.</em></h2>
           <p class="cart-empty__sub">Check the link, or head back to the shop.</p>
-          <a class="cart-empty__link" href="/">Back home <span aria-hidden="true">→</span></a>
+          <a class="cart-empty__link" href="/">Back home <span aria-hidden="true">&rarr;</span></a>
+        </div>
+      </div>
+
+      <div id="success-pending" hidden>
+        <div class="cart-empty">
+          <h2 class="cart-empty__title">Payment is <em>processing.</em></h2>
+          <p class="cart-empty__sub">Your payment was accepted. We're finalizing the details — you'll receive an email shortly with your order confirmation.</p>
+          <a class="cart-empty__link" href="/shop">Keep browsing <span aria-hidden="true">&rarr;</span></a>
         </div>
       </div>
 
@@ -29,7 +47,7 @@ import Footer from '../../components/Footer.astro';
         <div id="success-shipping"></div>
 
         <p class="order-success__outro" id="success-outro"></p>
-        <a href="/shop" class="order-summary__continue">Back to the shop →</a>
+        <a href="/shop" class="order-summary__continue">Back to the shop &rarr;</a>
       </div>
     </div>
   </section>
@@ -41,6 +59,8 @@ import Footer from '../../components/Footer.astro';
   import { formatPrice } from '../../lib/format';
   import { renderSummaryRow, sumCents, type CartItemData } from '../../lib/cart-render';
 
+  const API_BASE = import.meta.env.PUBLIC_API_URL;
+
   interface OrderItem {
     product_id: string;
     slug: string;
@@ -50,6 +70,7 @@ import Footer from '../../components/Footer.astro';
     primary_image_url: string | null;
   }
   interface OrderData {
+    status: 'pending' | 'paid' | 'cancelled' | string;
     order_number: string;
     customer_name: string;
     customer_email: string;
@@ -69,7 +90,9 @@ import Footer from '../../components/Footer.astro';
   }
 
   const loadingEl = document.getElementById('success-loading')!;
+  const cancelledEl = document.getElementById('success-cancelled')!;
   const notFoundEl = document.getElementById('success-notfound')!;
+  const pendingEl = document.getElementById('success-pending')!;
   const mainEl = document.getElementById('success-main')!;
   const titleEl = document.getElementById('success-title')!;
   const subtitleEl = document.getElementById('success-subtitle')!;
@@ -78,7 +101,11 @@ import Footer from '../../components/Footer.astro';
   const outroEl = document.getElementById('success-outro')!;
 
   function esc(s: string): string {
-    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    return s
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
   }
 
   function renderSummary(order: OrderData) {
@@ -139,54 +166,89 @@ import Footer from '../../components/Footer.astro';
     `;
   }
 
+  function showPaid(order: OrderData) {
+    const firstName = (order.customer_name || '').trim().split(/\s+/)[0] || order.customer_name || '';
+    titleEl.innerHTML = `Thank you, <em>${esc(firstName)}.</em>`;
+    subtitleEl.innerHTML = `Your order <strong>${esc(order.order_number)}</strong> has been received.`;
+    outroEl.innerHTML = `We'll email you at <a href="mailto:${esc(order.customer_email)}">${esc(order.customer_email)}</a> when it ships.`;
+    renderSummary(order);
+    renderShipping(order);
+    loadingEl.hidden = true;
+    mainEl.hidden = false;
+  }
+
+  function showNotFound() {
+    loadingEl.hidden = true;
+    notFoundEl.hidden = false;
+  }
+
+  function showPending() {
+    loadingEl.hidden = true;
+    pendingEl.hidden = false;
+  }
+
+  function showCancelled() {
+    loadingEl.hidden = true;
+    cancelledEl.hidden = false;
+  }
+
   async function init() {
     const url = new URL(window.location.href);
-    const orderNumber = url.searchParams.get('order');
 
-    if (!orderNumber) {
-      loadingEl.hidden = true;
-      notFoundEl.hidden = false;
+    if (url.searchParams.get('cancelled') === '1') {
+      showCancelled();
       return;
     }
 
-    try {
-      const res = await fetch(`/api/orders/by-number?order=${encodeURIComponent(orderNumber)}`);
-      if (!res.ok) {
-        loadingEl.hidden = true;
-        notFoundEl.hidden = false;
-        return;
-      }
-      const json = await res.json();
-      if (!json.ok || !json.data) {
-        loadingEl.hidden = true;
-        notFoundEl.hidden = false;
-        return;
-      }
-
-      const order = json.data as OrderData;
-
-      // Fire-and-forget mark-paid-stub. Idempotent per spec.
-      fetch(`/api/orders/${encodeURIComponent(orderNumber)}/mark-paid-stub`, {
-        method: 'POST',
-      }).catch(() => {});
-
-      // Clear cart immediately so badge drops to 0.
-      clearCart();
-
-      const firstName = (order.customer_name || '').trim().split(/\s+/)[0] || order.customer_name || '';
-      titleEl.innerHTML = `Thank you, <em>${esc(firstName)}.</em>`;
-      subtitleEl.innerHTML = `Your order <strong>${esc(order.order_number)}</strong> has been received.`;
-      outroEl.innerHTML = `We'll email you at <a href="mailto:${esc(order.customer_email)}">${esc(order.customer_email)}</a> when it ships.`;
-
-      renderSummary(order);
-      renderShipping(order);
-
-      loadingEl.hidden = true;
-      mainEl.hidden = false;
-    } catch {
-      loadingEl.hidden = true;
-      notFoundEl.hidden = false;
+    const sessionId = url.searchParams.get('session_id');
+    if (!sessionId) {
+      showNotFound();
+      return;
     }
+
+    const MAX_ATTEMPTS = 15;
+    const POLL_MS = 2000;
+    let attempt = 0;
+    let stopped = false;
+
+    async function pollOnce(): Promise<void> {
+      attempt += 1;
+      try {
+        const res = await fetch(
+          `${API_BASE}/api/orders/by-session?session_id=${encodeURIComponent(sessionId!)}`,
+          { headers: { 'Accept': 'application/json' } },
+        );
+        if (res.status === 404) {
+          stopped = true;
+          showNotFound();
+          return;
+        }
+        const json = await res.json();
+        const order = json?.data as OrderData | undefined;
+        if (json?.ok && order?.status === 'paid') {
+          stopped = true;
+          clearCart();
+          showPaid(order);
+          return;
+        }
+      } catch {
+        // transient — fall through to retry
+      }
+
+      if (attempt >= MAX_ATTEMPTS) {
+        stopped = true;
+        clearCart(); // payment succeeded on Stripe's side; webhook is just late
+        showPending();
+        return;
+      }
+
+      window.setTimeout(() => {
+        if (stopped) return;
+        void pollOnce();
+      }, POLL_MS);
+    }
+
+    void pollOnce();
   }
 
   init();
