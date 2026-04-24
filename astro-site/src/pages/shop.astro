@@ -26,11 +26,8 @@ const categoryFromPieceId = (pieceId: string | null): Category => {
 };
 
 const now = Date.now();
-// fetchPublishedProducts() already filters to status === 'published', so every
-// product here is live. Reservations are transient (hold during checkout), so
-// we surface them as 'low'. A stale sold_at on a still-published product is a
-// data quirk, not a real sold state — trust the status field.
 const stockFromProduct = (p: (typeof products)[number]) => {
+  if (p.sold_at) return 'oos';
   if (p.reserved_until && new Date(p.reserved_until).getTime() > now) return 'low';
   return 'ok';
 };

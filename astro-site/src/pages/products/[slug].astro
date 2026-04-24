@@ -29,11 +29,8 @@ const images = product.product_images.length
   : [{ url: FALLBACK_IMG, alt: product.title }];
 
 const now = Date.now();
-// Trust the status column. A stale sold_at on a still-published product is
-// a data quirk (e.g. from a prior test order that didn't flip status), not
-// a real sold state.
-const isSold = product.status !== 'published';
-const isReserved = !isSold && !!product.reserved_until && new Date(product.reserved_until).getTime() > now;
+const isSold = !!product.sold_at;
+const isReserved = product.reserved_until && new Date(product.reserved_until).getTime() > now;
 const available = !isSold && !isReserved;
 
 const stockLabel = isSold ? 'Sold' : isReserved ? 'Reserved' : 'Available · 1 of 1';
@@ -285,9 +282,7 @@ const description = product.description ?? '';
               .eq('id', productId)
               .maybeSingle();
             if (error || !data) return;
-            // Status column is the source of truth. A stale sold_at on a
-            // still-published product is a data quirk, not a real sold state.
-            if (data.status !== 'published') {
+            if (data.sold_at || data.status !== 'published') {
               status = 'sold';
             } else if (data.reserved_until && new Date(data.reserved_until).getTime() > Date.now()) {
               status = 'reserved';
