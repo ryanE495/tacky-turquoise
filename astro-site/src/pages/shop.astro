@@ -172,6 +172,7 @@ const titleHtml = (t: string) => t.replace(/(\b\w+)$/, '<em>$1</em>');
               <a
                 href={`/products/${v.slug}`}
                 class={`prod reveal${v.stock === 'oos' ? ' is-oos' : ''}`}
+                data-id={v.id}
                 data-cat={v.cat}
                 data-price={v.price}
                 data-len={v.lens.join(',')}
@@ -327,6 +328,90 @@ const titleHtml = (t: string) => t.replace(/(\b\w+)$/, '<em>$1</em>');
         { threshold: 0.1 }
       );
       document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+    </script>
+
+    <script>
+      // Live-sync product status. The page is statically generated, so any
+      // product bought after build time still shows as available in the grid
+      // until this script runs. We refetch status + sold_at on mount and
+      // update each card that has transitioned to sold (or moved out of
+      // published status).
+      import { supabase } from '../lib/supabase';
+
+      (async function () {
+        const cards = Array.from(document.querySelectorAll<HTMLElement>('#grid .prod[data-id]'));
+        if (!cards.length) return;
+        const ids = cards.map((c) => c.dataset.id!).filter(Boolean);
+        if (!ids.length) return;
+
+        try {
+          const { data, error } = await supabase
+            .from('products')
+            .select('id, status, sold_at, reserved_until')
+            .in('id', ids);
+          if (error || !data) return;
+
+          const now = Date.now();
+          const byId = new Map(data.map((p: any) => [p.id, p]));
+
+          let visibleCount = 0;
+
+          cards.forEach((card) => {
+            const p = byId.get(card.dataset.id!) as any | undefined;
+
+            // Not returned or no longer published → sold
+            const isSold = !p || p.status !== 'published' || !!p.sold_at;
+            const isReserved = !isSold && p.reserved_until && new Date(p.reserved_until).getTime() > now;
+
+            const stock = isSold ? 'oos' : isReserved ? 'low' : 'ok';
+            card.dataset.stock = stock;
+
+            // Update the sold visual state
+            card.classList.toggle('is-oos', isSold);
+
+            // Tag pill: swap to "Sold" if needed; remove unrelated tags
+            const existingTag = card.querySelector<HTMLElement>('.prod__tag');
+            if (isSold) {
+              if (existingTag) {
+                existingTag.textContent = 'Sold';
+                existingTag.className = 'prod__tag prod__tag--sold';
+              } else {
+                const img = card.querySelector<HTMLElement>('.prod__img');
+                if (img) {
+                  const tag = document.createElement('span');
+                  tag.className = 'prod__tag prod__tag--sold';
+                  tag.textContent = 'Sold';
+                  img.prepend(tag);
+                }
+              }
+            } else if (isReserved && existingTag && !existingTag.textContent?.trim()) {
+              existingTag.textContent = 'Reserved';
+              existingTag.className = 'prod__tag';
+            }
+
+            // Quick-add overlay text
+            const quick = card.querySelector<HTMLElement>('.prod__quick > span:first-child');
+            if (quick) quick.textContent = isSold ? 'Waitlist' : 'View piece';
+
+            // Meta row stock label
+            const stockEl = card.querySelector<HTMLElement>('.prod__stock');
+            if (stockEl) {
+              stockEl.classList.remove('is-low', 'is-oos');
+              if (isSold) { stockEl.textContent = 'Sold'; stockEl.classList.add('is-oos'); }
+              else if (isReserved) { stockEl.textContent = 'Reserved'; stockEl.classList.add('is-low'); }
+              else { stockEl.textContent = 'Available'; }
+            }
+
+            if (!card.classList.contains('is-hidden')) visibleCount++;
+          });
+
+          // Keep the count readout honest if the current filter shows everything.
+          const readout = document.getElementById('count-n');
+          if (readout) readout.textContent = String(visibleCount);
+        } catch {
+          // network errors: leave the baked-in state alone, user can refresh
+        }
+      })();
     </script>
   </body>
 </html>
