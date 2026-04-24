@@ -5,50 +5,7 @@ import Footer from '../../components/Footer.astro';
 <Base title="Order confirmed — Tacky Turquoise">
   <section class="storefront-page">
     <div class="storefront-page__inner">
-      <div id="success-loading" class="storefront-loading">Confirming your payment<span aria-hidden="true">&hellip;</span></div>
-
-      <div id="success-cancelled" hidden class="order-failed">
-        <div class="order-failed__eyebrow">Checkout cancelled</div>
-        <h1 class="order-failed__title">Your checkout was <em>cancelled.</em></h1>
-        <p class="order-failed__body">Your cart has been saved. You can return to checkout anytime.</p>
-        <div class="order-failed__actions">
-          <a href="/cart" class="btn-primary">Return to cart <span aria-hidden="true">&rarr;</span></a>
-          <a href="/shop" class="btn-secondary">Keep shopping</a>
-        </div>
-      </div>
-
-      <div id="success-notfound" hidden>
-        <div class="cart-empty">
-          <h2 class="cart-empty__title">We couldn't find that <em>order.</em></h2>
-          <p class="cart-empty__sub">Check the link, or head back to the shop.</p>
-          <a class="cart-empty__link" href="/">Back home <span aria-hidden="true">&rarr;</span></a>
-        </div>
-      </div>
-
-      <div id="success-pending" hidden>
-        <div class="cart-empty">
-          <h2 class="cart-empty__title">Payment is <em>processing.</em></h2>
-          <p class="cart-empty__sub">Your payment was accepted. We're finalizing the details — you'll receive an email shortly with your order confirmation.</p>
-          <a class="cart-empty__link" href="/shop">Keep browsing <span aria-hidden="true">&rarr;</span></a>
-        </div>
-      </div>
-
-      <div id="success-main" hidden class="order-success">
-        <header class="order-success__head">
-          <div class="order-success__eyebrow">
-            <span class="dot" aria-hidden="true"></span>
-            <span>Order confirmed</span>
-          </div>
-          <h1 class="order-success__title" id="success-title">Thank you.</h1>
-          <p class="order-success__subtitle" id="success-subtitle"></p>
-        </header>
-
-        <div id="success-summary"></div>
-        <div id="success-shipping"></div>
-
-        <p class="order-success__outro" id="success-outro"></p>
-        <a href="/shop" class="order-summary__continue">Back to the shop &rarr;</a>
-      </div>
+      <div id="success-root" class="storefront-loading">Confirming your payment<span aria-hidden="true">&hellip;</span></div>
     </div>
   </section>
   <Footer />
@@ -89,16 +46,7 @@ import Footer from '../../components/Footer.astro';
     };
   }
 
-  const loadingEl = document.getElementById('success-loading')!;
-  const cancelledEl = document.getElementById('success-cancelled')!;
-  const notFoundEl = document.getElementById('success-notfound')!;
-  const pendingEl = document.getElementById('success-pending')!;
-  const mainEl = document.getElementById('success-main')!;
-  const titleEl = document.getElementById('success-title')!;
-  const subtitleEl = document.getElementById('success-subtitle')!;
-  const summaryEl = document.getElementById('success-summary')!;
-  const shippingEl = document.getElementById('success-shipping')!;
-  const outroEl = document.getElementById('success-outro')!;
+  const root = document.getElementById('success-root')!;
 
   function esc(s: string): string {
     return s
@@ -108,7 +56,47 @@ import Footer from '../../components/Footer.astro';
       .replace(/"/g, '&quot;');
   }
 
-  function renderSummary(order: OrderData) {
+  function renderLoading() {
+    root.className = 'storefront-loading';
+    root.innerHTML = 'Confirming your payment<span aria-hidden="true">&hellip;</span>';
+  }
+
+  function renderCancelled() {
+    root.className = 'order-failed';
+    root.innerHTML = `
+      <div class="order-failed__eyebrow">Checkout cancelled</div>
+      <h1 class="order-failed__title">Your checkout was <em>cancelled.</em></h1>
+      <p class="order-failed__body">Your cart has been saved. You can return to checkout anytime.</p>
+      <div class="order-failed__actions">
+        <a href="/cart" class="btn-primary">Return to cart <span aria-hidden="true">&rarr;</span></a>
+        <a href="/shop" class="btn-secondary">Keep shopping</a>
+      </div>
+    `;
+  }
+
+  function renderNotFound() {
+    root.className = '';
+    root.innerHTML = `
+      <div class="cart-empty">
+        <h2 class="cart-empty__title">We couldn't find that <em>order.</em></h2>
+        <p class="cart-empty__sub">Check the link, or head back to the shop.</p>
+        <a class="cart-empty__link" href="/">Back home <span aria-hidden="true">&rarr;</span></a>
+      </div>
+    `;
+  }
+
+  function renderPending() {
+    root.className = '';
+    root.innerHTML = `
+      <div class="cart-empty">
+        <h2 class="cart-empty__title">Payment is <em>processing.</em></h2>
+        <p class="cart-empty__sub">Your payment was accepted. We're finalizing the details — you'll receive an email shortly with your order confirmation.</p>
+        <a class="cart-empty__link" href="/shop">Keep browsing <span aria-hidden="true">&rarr;</span></a>
+      </div>
+    `;
+  }
+
+  function buildSummaryHtml(order: OrderData): string {
     const items: CartItemData[] = order.items.map((it) => ({
       id: it.product_id,
       slug: it.slug,
@@ -125,7 +113,7 @@ import Footer from '../../components/Footer.astro';
     const tax = order.tax_cents ?? 0;
     const total = order.total_cents ?? subtotal + shipping + tax;
 
-    summaryEl.innerHTML = `
+    return `
       <div class="order-summary">
         <div class="order-summary__heading">Your order</div>
         <div class="order-summary__items">
@@ -154,9 +142,9 @@ import Footer from '../../components/Footer.astro';
     `;
   }
 
-  function renderShipping(order: OrderData) {
+  function buildShippingHtml(order: OrderData): string {
     const a = order.shipping_address;
-    shippingEl.innerHTML = `
+    return `
       <div class="order-card">
         <div class="order-card__title">Shipping to</div>
         <div>${esc(order.customer_name)}</div>
@@ -166,46 +154,41 @@ import Footer from '../../components/Footer.astro';
     `;
   }
 
-  function showPaid(order: OrderData) {
+  function renderPaid(order: OrderData) {
     const firstName = (order.customer_name || '').trim().split(/\s+/)[0] || order.customer_name || '';
-    titleEl.innerHTML = `Thank you, <em>${esc(firstName)}.</em>`;
-    subtitleEl.innerHTML = `Your order <strong>${esc(order.order_number)}</strong> has been received.`;
-    outroEl.innerHTML = `We'll email you at <a href="mailto:${esc(order.customer_email)}">${esc(order.customer_email)}</a> when it ships.`;
-    renderSummary(order);
-    renderShipping(order);
-    loadingEl.hidden = true;
-    mainEl.hidden = false;
-  }
-
-  function showNotFound() {
-    loadingEl.hidden = true;
-    notFoundEl.hidden = false;
-  }
-
-  function showPending() {
-    loadingEl.hidden = true;
-    pendingEl.hidden = false;
-  }
-
-  function showCancelled() {
-    loadingEl.hidden = true;
-    cancelledEl.hidden = false;
+    root.className = 'order-success';
+    root.innerHTML = `
+      <header class="order-success__head">
+        <div class="order-success__eyebrow">
+          <span class="dot" aria-hidden="true"></span>
+          <span>Order confirmed</span>
+        </div>
+        <h1 class="order-success__title">Thank you, <em>${esc(firstName)}.</em></h1>
+        <p class="order-success__subtitle">Your order <strong>${esc(order.order_number)}</strong> has been received.</p>
+      </header>
+      ${buildSummaryHtml(order)}
+      ${buildShippingHtml(order)}
+      <p class="order-success__outro">We'll email you at <a href="mailto:${esc(order.customer_email)}">${esc(order.customer_email)}</a> when it ships.</p>
+      <a href="/shop" class="order-summary__continue">Back to the shop &rarr;</a>
+    `;
   }
 
   async function init() {
     const url = new URL(window.location.href);
 
+    // Mutually exclusive state routing — exactly one state renders.
     if (url.searchParams.get('cancelled') === '1') {
-      showCancelled();
+      renderCancelled();
       return;
     }
 
     const sessionId = url.searchParams.get('session_id');
     if (!sessionId) {
-      showNotFound();
+      renderNotFound();
       return;
     }
 
+    // Poll: every 2s, up to 15 attempts (30s)
     const MAX_ATTEMPTS = 15;
     const POLL_MS = 2000;
     let attempt = 0;
@@ -220,7 +203,7 @@ import Footer from '../../components/Footer.astro';
         );
         if (res.status === 404) {
           stopped = true;
-          showNotFound();
+          renderNotFound();
           return;
         }
         const json = await res.json();
@@ -228,17 +211,18 @@ import Footer from '../../components/Footer.astro';
         if (json?.ok && order?.status === 'paid') {
           stopped = true;
           clearCart();
-          showPaid(order);
+          renderPaid(order);
           return;
         }
       } catch {
-        // transient — fall through to retry
+        // transient — retry
       }
 
       if (attempt >= MAX_ATTEMPTS) {
         stopped = true;
-        clearCart(); // payment succeeded on Stripe's side; webhook is just late
-        showPending();
+        // Payment succeeded on Stripe's side; webhook is just catching up.
+        clearCart();
+        renderPending();
         return;
       }
 
@@ -248,6 +232,7 @@ import Footer from '../../components/Footer.astro';
       }, POLL_MS);
     }
 
+    renderLoading();
     void pollOnce();
   }
 
