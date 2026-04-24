@@ -19,7 +19,6 @@ import Footer from '../../components/Footer.astro';
   const API_BASE = import.meta.env.PUBLIC_API_URL;
 
   interface OrderItem {
-    product_id: string;
     slug: string;
     piece_id: string | null;
     title: string;
@@ -36,7 +35,10 @@ import Footer from '../../components/Footer.astro';
     shipping_cents: number;
     tax_cents?: number;
     total_cents: number;
-    shipping_address: {
+    shipping_service_level?: string;
+    shipping_estimated_days?: number;
+    ship_to: {
+      name?: string;
       line1: string;
       line2?: string | null;
       city: string;
@@ -44,6 +46,7 @@ import Footer from '../../components/Footer.astro';
       postal_code: string;
       country: string;
     };
+    created_at?: string;
   }
 
   const root = document.getElementById('success-root')!;
@@ -98,7 +101,7 @@ import Footer from '../../components/Footer.astro';
 
   function buildSummaryHtml(order: OrderData): string {
     const items: CartItemData[] = order.items.map((it) => ({
-      id: it.product_id,
+      id: it.slug,
       slug: it.slug,
       piece_id: it.piece_id,
       title: it.title,
@@ -143,13 +146,19 @@ import Footer from '../../components/Footer.astro';
   }
 
   function buildShippingHtml(order: OrderData): string {
-    const a = order.shipping_address;
+    const a = order.ship_to;
+    if (!a) return '';
+    const name = a.name || order.customer_name || '';
+    const serviceLine = order.shipping_service_level
+      ? `<div style="margin-top: 8px; font-family: var(--f-mono); font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--c-ink-soft);">${esc(order.shipping_service_level)}${order.shipping_estimated_days ? ' &middot; ~' + order.shipping_estimated_days + ' days' : ''}</div>`
+      : '';
     return `
       <div class="order-card">
         <div class="order-card__title">Shipping to</div>
-        <div>${esc(order.customer_name)}</div>
+        <div>${esc(name)}</div>
         <div>${esc(a.line1)}${a.line2 ? '<br>' + esc(a.line2) : ''}</div>
         <div>${esc(a.city)}, ${esc(a.state)} ${esc(a.postal_code)}</div>
+        ${serviceLine}
       </div>
     `;
   }
