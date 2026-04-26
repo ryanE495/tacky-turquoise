@@ -63,6 +63,23 @@ export async function fetchPublishedProducts(): Promise<ProductWithImages[]> {
   })) as ProductWithImages[];
 }
 
+export async function fetchFeaturedProducts(): Promise<ProductWithImages[]> {
+  const { data, error } = await supabase
+    .from('products')
+    .select('*, product_images(*)')
+    .eq('status', 'published')
+    .eq('featured', true)
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return (data ?? []).map((p) => ({
+    ...p,
+    product_images: (p.product_images ?? []).sort(
+      (a: ProductImage, b: ProductImage) => a.display_order - b.display_order,
+    ),
+  })) as ProductWithImages[];
+}
+
 export async function fetchProductBySlug(slug: string): Promise<ProductWithImages | null> {
   const { data, error } = await supabase
     .from('products')
@@ -82,4 +99,26 @@ export async function fetchProductBySlug(slug: string): Promise<ProductWithImage
 
 export function formatPrice(cents: number): string {
   return `$${(cents / 100).toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
+}
+
+export interface DropSettings {
+  id: number;
+  enabled: boolean;
+  name: string | null;
+  drops_at: string | null;
+  location: string | null;
+  shop_url: string | null;
+  updated_at: string;
+}
+
+export async function fetchDropSettings(): Promise<DropSettings | null> {
+  const { data, error } = await supabase
+    .from('drop_settings')
+    .select('*')
+    .order('id', { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) throw error;
+  return (data ?? null) as DropSettings | null;
 }

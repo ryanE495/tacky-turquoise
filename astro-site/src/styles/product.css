@@ -19,7 +19,7 @@
 }
 
 /* ---------- GALLERY ---------- */
-.gallery { position: sticky; top: 120px; display: grid; gap: 14px; }
+.gallery { display: grid; gap: 14px; }
 .gallery__main {
   aspect-ratio: 4/5;
   background: var(--c-bg-3);
@@ -27,11 +27,25 @@
   overflow: hidden;
   position: relative;
   box-shadow: 0 2px 8px rgba(30,42,45,.10);
+  /* Cap height so very wide gallery columns can't push the image past the viewport */
+  max-height: calc(100vh - 200px);
 }
 .gallery__main img {
   width: 100%; height: 100%; object-fit: cover;
   transition: opacity .35s ease;
 }
+
+/* Single-image products: constrain the lone image so it doesn't dominate
+   the viewport when there are no thumbs to share visual weight with. */
+.gallery.is-single { gap: 0; }
+.gallery.is-single .gallery__main {
+  aspect-ratio: 1/1;
+  max-width: 560px;
+  max-height: min(72vh, 720px);
+  margin: 0 auto;
+  width: 100%;
+}
+.gallery.is-single .gallery__main img { object-fit: contain; padding: 8px; }
 .gallery__main img.is-hidden { display: none; }
 
 .gallery__badge {

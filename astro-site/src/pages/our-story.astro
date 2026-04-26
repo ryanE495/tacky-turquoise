@@ -1,0 +1,135 @@
+---
+import Base from '../layouts/Base.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+
+const HERO_BG       = 'https://ozxbjwvwchesjgebenbv.supabase.co/storage/v1/object/public/media/4fbd75cc-e1d2-4646-a4ec-81ec54979a1c.webp';
+const PORTRAIT      = 'https://ozxbjwvwchesjgebenbv.supabase.co/storage/v1/object/public/media/d4054719-ec71-41c5-9913-b83175456512.webp';
+const MATERIALS_IMG = 'https://ozxbjwvwchesjgebenbv.supabase.co/storage/v1/object/public/media/1180cabe-49ef-4812-9883-310f8153852b.webp';
+---
+<Base
+  title="Our Story"
+  description="A small studio in Montrose, Colorado — making turquoise jewelry the slow way, one piece at a time."
+>
+  <Nav current="story" />
+
+  <!-- 01 · HERO / MANIFESTO -->
+  <section class="story-hero">
+    <div class="story-hero__bg" aria-hidden="true">
+      <img src={HERO_BG} alt="" loading="eager" />
+    </div>
+    <div class="story-hero__overlay" aria-hidden="true"></div>
+    <div class="story-hero__content">
+      <div class="story-hero__eyebrow">
+        <span class="dot" aria-hidden="true"></span>
+        <span>Our story · Vol. 01</span>
+      </div>
+      <h1 class="story-hero__title">
+        Real stone.<br />
+        <em>Real hands.</em>
+      </h1>
+      <p class="story-hero__sub">
+        A small studio in Montrose, Colorado — making jewelry the
+        slow way, one piece at a time.
+      </p>
+      <a href="#the-maker" class="story-hero__scroll">
+        Meet the maker
+        <span class="arrow" aria-hidden="true">↓</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- 02 · THE MAKER -->
+  <section class="story-maker" id="the-maker">
+    <div class="story-maker__grid">
+      <div class="story-maker__portrait">
+        <img src={PORTRAIT} alt="The maker behind Tacky Turquoise" />
+      </div>
+      <div class="story-maker__body">
+        <div class="story-maker__eyebrow">◆ The maker</div>
+        <h2 class="story-maker__title">
+          Made by hand, <em>one at a time.</em>
+        </h2>
+        <p class="story-maker__lede">
+          It started in a kitchen — one strand of beads, a clasp, and an
+          idea that stuck.
+        </p>
+        <p class="story-maker__copy">
+          Every piece is designed and strung by hand, in Montrose —
+          turquoise, German silver, and a little patience.
+        </p>
+        <p class="story-maker__copy">
+          No two pieces are alike. When you order, you're getting one that
+          was touched, named, and signed.
+        </p>
+        <div class="story-maker__sign">
+          <span class="line">Made in Montrose</span>
+          <span class="dash">—</span>
+          <span class="name">By hand</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 · THE CRAFT / MATERIALS -->
+  <section class="story-materials">
+    <div class="story-materials__bg" aria-hidden="true">
+      <img src={MATERIALS_IMG} alt="" loading="lazy" />
+    </div>
+    <div class="story-materials__overlay" aria-hidden="true"></div>
+    <div class="story-materials__content">
+      <div class="story-materials__eyebrow">◆ The craft</div>
+      <h2 class="story-materials__title">
+        Turquoise,<br />
+        <em>German silver.</em>
+      </h2>
+      <p class="story-materials__copy">
+        Every necklace is hand-strung by me, one bead at a time.
+      </p>
+      <p class="story-materials__copy">
+        German silver beads are antiqued and polished by Navajo artists
+        using a technique passed down since the 1800s. Heavier than
+        sterling, harder, and built to last.
+      </p>
+      <ul class="story-materials__stats">
+        <li>
+          <span class="num">By hand</span>
+          <span class="lbl">Every piece</span>
+        </li>
+        <li>
+          <span class="num">Hand</span>
+          <span class="lbl">Made</span>
+        </li>
+        <li>
+          <span class="num">1 of 1</span>
+          <span class="lbl">No repeats</span>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 04 · THE PROMISE / CTA -->
+  <section class="story-promise">
+    <div class="story-promise__inner">
+      <div class="story-promise__eyebrow">◆ The promise</div>
+      <h2 class="story-promise__title">
+        One piece.<br />
+        <em>One owner.</em>
+      </h2>
+      <p class="story-promise__copy">
+        Nothing gets restocked. Nothing gets duplicated. When a piece is
+        gone, it's gone — to someone's neck, wrist, or finger. That's the
+        deal, and it's why every piece is worth the wait.
+      </p>
+      <a href="/shop" class="story-promise__cta">
+        <span>See what's in the shop</span>
+        <span class="arrow" aria-hidden="true">→</span>
+      </a>
+      <div class="story-promise__sig">
+        Tacky Turquoise · Montrose, Colorado
+      </div>
+    </div>
+  </section>
+
+  <Footer />
+</Base>

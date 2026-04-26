@@ -1,18 +1,35 @@
 ---
 import Nav from './Nav.astro';
+import { fetchDropSettings } from '../lib/supabase';
 
-// Gallery tiles — each maps to a unique image + object-position
-const tiles = [
-  { src: 'https://ozxbjwvwchesjgebenbv.supabase.co/storage/v1/object/public/media/2d6b0b22-9dbc-42b2-8cae-e5acd419875c.webp', pos: '50% 50%' },
-  { src: 'https://ozxbjwvwchesjgebenbv.supabase.co/storage/v1/object/public/media/15a37aad-7339-4d64-ba14-a9fd944718e8.webp', pos: '50% 50%' },
-  { src: 'https://ozxbjwvwchesjgebenbv.supabase.co/storage/v1/object/public/media/6610720e-2a1b-4fbb-8c5a-fc1cb65a2099.webp', pos: '50% 50%' },
-  { src: 'https://ozxbjwvwchesjgebenbv.supabase.co/storage/v1/object/public/media/41c87e3c-212d-4ca3-8e8b-7bfd00fad187.webp', pos: '50% 50%' },
-  { src: 'https://ozxbjwvwchesjgebenbv.supabase.co/storage/v1/object/public/media/4fbd75cc-e1d2-4646-a4ec-81ec54979a1c.webp', pos: '50% 50%' },
-  { src: 'https://ozxbjwvwchesjgebenbv.supabase.co/storage/v1/object/public/media/0f54f65c-3c9a-4925-99a7-a8d88768dc77.webp', pos: '50% 50%' },
-];
+const HERO_LOGO = 'https://ozxbjwvwchesjgebenbv.supabase.co/storage/v1/object/public/media/7389f97c-ffe8-4070-9498-518ed4c72234.webp';
 
-const dropTargetISO = '2026-05-20T18:00:00-06:00';
-const dropHuman = 'Spring Drop \u201926  ·  May 20  ·  6 PM MT';
+let drop = null;
+try {
+  drop = await fetchDropSettings();
+} catch (e) {
+  console.warn('[Hero] drop_settings fetch failed:', e);
+}
+
+const dropEnabled = !!(drop && drop.enabled && drop.drops_at);
+const dropTargetISO = drop?.drops_at ?? '';
+const dropName = drop?.name ?? 'Next drop';
+const dropLocation = drop?.location ?? '';
+const shopUrl = drop?.shop_url || '/shop';
+
+function formatDropHuman(iso: string, name: string, location: string): string {
+  if (!iso) return name;
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return name;
+  const date = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'America/Denver' });
+  const time = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/Denver' });
+  const parts = [name, date, `${time} MT`];
+  if (location) parts.push(location);
+  return parts.filter(Boolean).join('  ·  ');
+}
+
+const dropHuman = dropEnabled ? formatDropHuman(dropTargetISO, dropName, dropLocation) : '';
+const heroEyebrow = dropEnabled ? `Vol. 07 · ${dropName}` : `Vol. 07 · Tacky Turquoise`;
 ---
 
 <header class="hero2" id="hero">
@@ -20,76 +37,77 @@ const dropHuman = 'Spring Drop \u201926  ·  May 20  ·  6 PM MT';
 
   <!-- Two-column stage: gallery left, text right -->
   <div class="hero2__stage">
-    <div class="hero2__gallery" aria-hidden="true">
-      {tiles.map((t) => (
-        <div class="hero2__tile">
-          <img src={t.src} alt="" style={`object-position: ${t.pos};`} loading="eager" />
-        </div>
-      ))}
+    <div class="hero2__logo" aria-hidden="true">
+      <img src={HERO_LOGO} alt="Tacky Turquoise" loading="eager" />
     </div>
 
     <div class="hero2__content">
       <div class="hero2__eyebrow reveal">
         <span class="dot" aria-hidden="true"></span>
-        <span>Vol. 07 · Spring Drop '26</span>
+        <span>{heroEyebrow}</span>
       </div>
 
       <h1 class="hero2__title reveal reveal--d1">
-        Handmade, <em>heirloom</em> pieces.
+        Real stone, one of <em>one.</em>
       </h1>
 
       <p class="hero2__sub reveal reveal--d2">
-        All our pieces are cut, set, and prayed over by hand in
-        the high desert of Gallup, New Mexico.
+        Every piece is hand-strung, signed, and made one at a time
+        in Montrose, Colorado.
       </p>
 
       <div class="hero2__actions reveal reveal--d3">
-        <a href="/shop" class="hero2__cta">
+        <a href={shopUrl} class="hero2__cta">
           <span>Shop the drop</span>
           <span class="arrow" aria-hidden="true">→</span>
         </a>
-        <a href="#next-drop" class="hero2__second">See what's next ↓</a>
+        {dropEnabled && (
+          <a href="#next-drop" class="hero2__second">See what's next ↓</a>
+        )}
       </div>
     </div>
   </div>
 </header>
 
 <!-- NEXT DROP COUNTDOWN -->
-<section class="next-drop" id="next-drop">
-  <div class="next-drop__inner">
-    <div class="next-drop__lead">
-      <div class="next-drop__eyebrow">
-        <span class="dot" aria-hidden="true"></span>
-        <span>{dropHuman}</span>
-      </div>
-      <h2 class="next-drop__title">Next <em>drop.</em></h2>
-      <a href="/shop" class="next-drop__cta">
-        <span>Shop the drop</span>
-        <span class="arrow" aria-hidden="true">→</span>
-      </a>
-    </div>
-
-    <div class="next-drop__right">
-      <div class="countdown" id="countdown" data-target={dropTargetISO} aria-live="polite">
-        <div class="countdown__cell"><span class="n" data-unit="d">00</span><span class="lbl">Days</span></div>
-        <div class="countdown__sep" aria-hidden="true">:</div>
-        <div class="countdown__cell"><span class="n" data-unit="h">00</span><span class="lbl">Hours</span></div>
-        <div class="countdown__sep" aria-hidden="true">:</div>
-        <div class="countdown__cell"><span class="n" data-unit="m">00</span><span class="lbl">Minutes</span></div>
-        <div class="countdown__sep" aria-hidden="true">:</div>
-        <div class="countdown__cell"><span class="n" data-unit="s">00</span><span class="lbl">Seconds</span></div>
+{dropEnabled && (
+  <section class="next-drop" id="next-drop" data-supabase-url={import.meta.env.PUBLIC_SUPABASE_URL} data-supabase-key={import.meta.env.PUBLIC_SUPABASE_ANON_KEY}>
+    <div class="next-drop__inner">
+      <div class="next-drop__lead">
+        <div class="next-drop__eyebrow">
+          <span class="dot" aria-hidden="true"></span>
+          <span data-drop-human>{dropHuman}</span>
+        </div>
+        <h2 class="next-drop__title">Next <em>drop.</em></h2>
+        <a href={shopUrl} class="next-drop__cta" data-drop-cta>
+          <span>Shop the drop</span>
+          <span class="arrow" aria-hidden="true">→</span>
+        </a>
       </div>
 
-      <div class="countdown__live" id="countdown-live" hidden>The drop is <em>live</em>. Go.</div>
+      <div class="next-drop__right">
+        <div class="countdown" id="countdown" data-target={dropTargetISO} aria-live="polite">
+          <div class="countdown__cell"><span class="n" data-unit="d">00</span><span class="lbl">Days</span></div>
+          <div class="countdown__sep" aria-hidden="true">:</div>
+          <div class="countdown__cell"><span class="n" data-unit="h">00</span><span class="lbl">Hours</span></div>
+          <div class="countdown__sep" aria-hidden="true">:</div>
+          <div class="countdown__cell"><span class="n" data-unit="m">00</span><span class="lbl">Minutes</span></div>
+          <div class="countdown__sep" aria-hidden="true">:</div>
+          <div class="countdown__cell"><span class="n" data-unit="s">00</span><span class="lbl">Seconds</span></div>
+        </div>
+
+        <div class="countdown__live" id="countdown-live" hidden>The drop is <em>live</em>. Go.</div>
+      </div>
     </div>
-  </div>
-</section>
+  </section>
+)}
 
 <script>
   (function () {
+    const section = document.getElementById('next-drop');
     const el = document.getElementById('countdown');
-    if (!el) return;
-    const target = new Date(el.dataset.target!).getTime();
+    if (!section || !el) return;
+
     const units: Record<string, HTMLElement> = {
       d: el.querySelector<HTMLElement>('[data-unit="d"]')!,
       h: el.querySelector<HTMLElement>('[data-unit="h"]')!,
@@ -97,10 +115,15 @@ const dropHuman = 'Spring Drop \u201926  ·  May 20  ·  6 PM MT';
       s: el.querySelector<HTMLElement>('[data-unit="s"]')!,
     };
     const live = document.getElementById('countdown-live');
+    const humanEl = section.querySelector<HTMLElement>('[data-drop-human]');
+    const ctaEl = section.querySelector<HTMLAnchorElement>('[data-drop-cta]');
+
+    let target = new Date(el.dataset.target!).getTime();
 
     function pad(n: number) { return n < 10 ? '0' + n : String(n); }
 
     function tick() {
+      if (!Number.isFinite(target)) return;
       const diff = target - Date.now();
       if (diff <= 0) {
         Object.values(units).forEach((u) => (u.textContent = '00'));
@@ -108,6 +131,8 @@ const dropHuman = 'Spring Drop \u201926  ·  May 20  ·  6 PM MT';
         if (live) live.hidden = false;
         return;
       }
+      el!.removeAttribute('data-done');
+      if (live) live.hidden = true;
       const d = Math.floor(diff / (1000 * 60 * 60 * 24));
       const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
       const m = Math.floor((diff / (1000 * 60)) % 60);
@@ -120,5 +145,48 @@ const dropHuman = 'Spring Drop \u201926  ·  May 20  ·  6 PM MT';
     tick();
     const interval = window.setInterval(tick, 1000);
     window.addEventListener('beforeunload', () => window.clearInterval(interval));
+
+    function formatHuman(iso: string, name: string, location: string | null): string {
+      if (!iso) return name;
+      const d = new Date(iso);
+      if (Number.isNaN(d.getTime())) return name;
+      const date = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'America/Denver' });
+      const time = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/Denver' });
+      const parts = [name, date, `${time} MT`];
+      if (location) parts.push(location);
+      return parts.filter(Boolean).join('  ·  ');
+    }
+
+    async function refreshDrop() {
+      const url = section!.dataset.supabaseUrl;
+      const key = section!.dataset.supabaseKey;
+      if (!url || !key) return;
+      try {
+        const res = await fetch(`${url}/rest/v1/drop_settings?select=*&order=id.asc&limit=1`, {
+          headers: { apikey: key, Authorization: `Bearer ${key}` },
+        });
+        if (!res.ok) return;
+        const rows = await res.json();
+        const row = Array.isArray(rows) ? rows[0] : null;
+        if (!row) return;
+
+        if (!row.enabled || !row.drops_at) {
+          section!.hidden = true;
+          return;
+        }
+
+        const newTarget = new Date(row.drops_at).getTime();
+        if (Number.isFinite(newTarget) && newTarget !== target) {
+          target = newTarget;
+          el!.dataset.target = row.drops_at;
+          tick();
+        }
+        if (humanEl) humanEl.textContent = formatHuman(row.drops_at, row.name ?? 'Next drop', row.location ?? null);
+        if (ctaEl && row.shop_url) ctaEl.href = row.shop_url;
+      } catch {
+        /* ignore — keep static values */
+      }
+    }
+    refreshDrop();
   })();
 </script>

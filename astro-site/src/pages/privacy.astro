@@ -1,0 +1,138 @@
+---
+import Base from '../layouts/Base.astro';
+import Footer from '../components/Footer.astro';
+---
+<Base
+  title="Privacy Policy"
+  description="How Tacky Turquoise collects, uses, and protects your information."
+>
+  <section class="policy">
+    <div class="policy__inner">
+      <div class="policy__crumb"><a href="/">Home</a> &nbsp;/&nbsp; Privacy Policy</div>
+
+      <h1>Privacy <em>Policy.</em></h1>
+      <p class="policy__updated">Last updated: 4/25/2026</p>
+
+      <p class="policy__lede">
+        This Privacy Policy describes how Tacky Turquoise (Apex Quality Analytics LLC)
+        collects, uses, and protects information when you visit tackyturquoise.com or
+        place an order.
+      </p>
+
+      <h2>What We Collect</h2>
+      <p><strong>Information you give us:</strong></p>
+      <ul>
+        <li>Name, email, phone number, and shipping address (when you place an order)</li>
+        <li>Payment information (handled directly by Stripe — we never see or store full card numbers)</li>
+        <li>Order notes you choose to include</li>
+        <li>Any messages you send us</li>
+      </ul>
+
+      <p><strong>Information collected automatically:</strong></p>
+      <ul>
+        <li>Browser type, device type, IP address, pages visited, and time spent on the Site</li>
+        <li>Cart contents stored in your browser's local storage</li>
+      </ul>
+
+      <h2>How We Use It</h2>
+      <ul>
+        <li>To process and fulfill your orders</li>
+        <li>To send order confirmations, shipping notifications, and respond to questions</li>
+        <li>To calculate accurate shipping rates and sales tax</li>
+        <li>To detect fraud and protect the Site from abuse</li>
+        <li>To improve the Site based on aggregate usage patterns</li>
+      </ul>
+      <p><strong>We do not sell your personal information. Ever.</strong></p>
+
+      <h2>Who We Share It With</h2>
+      <p>We share information only with service providers who help us operate the Site:</p>
+      <ul>
+        <li><strong>Stripe</strong> — payment processing (PCI-compliant; processes card information directly without us seeing it)</li>
+        <li><strong>Shippo</strong> — shipping rate calculation and label generation</li>
+        <li><strong>Resend</strong> — transactional emails (order confirmations and shipping notifications)</li>
+        <li><strong>Supabase</strong> — secure database hosting for orders and product information</li>
+        <li><strong>Netlify</strong> — site hosting and content delivery</li>
+      </ul>
+      <p>
+        Each of these providers has their own privacy policies and security practices.
+        We choose providers known for strong data protection.
+      </p>
+      <p>
+        We may also disclose information if required by law, subpoena, or court order,
+        or to protect our legal rights.
+      </p>
+
+      <h2>Cookies and Tracking</h2>
+      <p>We use minimal browser storage (cookies and localStorage) to:</p>
+      <ul>
+        <li>Remember your cart between visits</li>
+        <li>Keep admin users logged in to internal accounts if applicable</li>
+        <li>Measure aggregate site usage</li>
+      </ul>
+      <p>You can disable cookies in your browser, but parts of the Site may not function correctly.</p>
+
+      <h2>Data Security</h2>
+      <p>
+        We use industry-standard security measures to protect your information, including
+        HTTPS encryption for all transmissions, secure database hosting, and limited
+        internal access. However, no method of internet transmission is 100% secure, and
+        we cannot guarantee absolute security.
+      </p>
+
+      <h2>Your Rights</h2>
+      <p>You have the right to:</p>
+      <ul>
+        <li><strong>Access</strong> the personal information we have about you</li>
+        <li><strong>Correct</strong> inaccurate information</li>
+        <li><strong>Delete</strong> your information (subject to legal record-keeping requirements for completed orders)</li>
+        <li><strong>Opt out</strong> of any non-essential communications</li>
+      </ul>
+      <p>
+        To exercise these rights, email us at
+        <a href="mailto:orders@tackyturquoise.com">orders@tackyturquoise.com</a>.
+        We'll respond within 30 days.
+      </p>
+      <p>
+        If you're a California or Colorado resident, you have additional rights under
+        the CCPA and Colorado Privacy Act, including the right to opt out of any sale of
+        personal information (which we don't do).
+      </p>
+
+      <h2>Children's Privacy</h2>
+      <p>
+        The Site is not directed at children under 13, and we do not knowingly collect
+        information from children. If we learn we have collected information from a child
+        under 13, we will delete it promptly.
+      </p>
+
+      <h2>Data Retention</h2>
+      <p>
+        We keep order information for as long as required by tax and accounting laws
+        (typically 7 years in the US). Account-related information is kept until you
+        request deletion or the account becomes inactive.
+      </p>
+
+      <h2>Changes to This Policy</h2>
+      <p>
+        We may update this Privacy Policy at any time. The "Last updated" date reflects
+        the most recent revision. Material changes will be communicated via email if
+        appropriate.
+      </p>
+
+      <h2>Contact</h2>
+      <p>
+        For privacy-related questions or to exercise your rights, email
+        <a href="mailto:orders@tackyturquoise.com">orders@tackyturquoise.com</a>.
+      </p>
+
+      <hr />
+
+      <p class="policy__signoff">
+        <strong>Apex Quality Analytics LLC</strong>
+        DBA Tacky Turquoise<br />
+        Olathe, Colorado
+      </p>
+    </div>
+  </section>
+  <Footer />
+</Base>

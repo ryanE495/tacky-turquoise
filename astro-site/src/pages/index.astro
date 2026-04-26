@@ -4,11 +4,14 @@ import Hero from '../components/Hero.astro';
 import ShopNewBanner from '../components/ShopNewBanner.astro';
 import MeetTheMaker from '../components/MeetTheMaker.astro';
 import EditorialBanner from '../components/EditorialBanner.astro';
-import TaglineStack from '../components/TaglineStack.astro';
+import FeaturedProducts from '../components/FeaturedProducts.astro';
 import Reviews from '../components/Reviews.astro';
 import Footer from '../components/Footer.astro';
 ---
-<Base>
+<Base
+  title="Handmade Turquoise Necklaces"
+  description="One-of-a-kind beaded turquoise necklaces, handmade in Colorado. Each piece is unique. Shipped across the US."
+>
   <Hero />
   <ShopNewBanner />
   <MeetTheMaker />
@@ -16,14 +19,14 @@ import Footer from '../components/Footer.astro';
     eyebrow="For the collector"
     title="For every kind of"
     em="collector."
-    sub="For the ones who believe a piece of jewelry should have a name, a number, and a story."
+    sub="For the ones who believe a piece of jewelry should have a name, a number, and a story behind it."
     cta="Shop now"
     href="/shop"
     align="left"
     variant="short"
     image="https://ozxbjwvwchesjgebenbv.supabase.co/storage/v1/object/public/media/6610720e-2a1b-4fbb-8c5a-fc1cb65a2099.webp"
   />
-  <TaglineStack />
+  <FeaturedProducts />
   <Reviews />
   <Footer />
 </Base>

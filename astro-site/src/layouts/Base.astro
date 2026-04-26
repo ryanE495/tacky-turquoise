@@ -1,31 +1,58 @@
 ---
-interface Props {
-  title?: string;
-}
-const { title = 'Tacky Turquoise — Real Stone. Real Hands. Real Loud.' } = Astro.props;
+import SEO, { type Props as SEOProps } from '../components/SEO.astro';
+
+interface Props extends SEOProps {}
+
+const seoProps = Astro.props as SEOProps;
 
 import '../styles/tokens.css';
 import '../styles/global.css';
 import '../styles/components.css';
 import '../styles/hero2.css';
 import '../styles/editorial.css';
+import '../styles/shop.css';
 import '../styles/cart-checkout.css';
+import '../styles/policy.css';
+import '../styles/story.css';
 import '../styles/mobile-menu.css';
 
 import MobileMenu from '../components/MobileMenu.astro';
+
+const ORG_JSONLD = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'Tacky Turquoise',
+  alternateName: 'Apex Quality Analytics LLC DBA Tacky Turquoise',
+  url: 'https://tackyturquoise.com',
+  logo: 'https://tackyturquoise.com/logo.png',
+  description:
+    'Handmade one-of-a-kind turquoise beaded necklaces. Made in Colorado.',
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Olathe',
+    addressRegion: 'CO',
+    addressCountry: 'US',
+  },
+  contactPoint: {
+    '@type': 'ContactPoint',
+    email: 'orders@tackyturquoise.com',
+    contactType: 'Customer Service',
+  },
+};
 ---
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{title}</title>
+    <SEO {...seoProps} />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Monoton&family=Sacramento&family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Monoton&family=Sacramento&family=DM+Serif+Display:ital@0;1&family=Caveat:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
     />
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(ORG_JSONLD)} />
   </head>
   <body>
     <slot />

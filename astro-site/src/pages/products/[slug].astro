@@ -1,14 +1,9 @@
 ---
-import '../../styles/tokens.css';
-import '../../styles/global.css';
-import '../../styles/components.css';
-import '../../styles/shop.css';
 import '../../styles/product.css';
-import '../../styles/mobile-menu.css';
 
+import Base from '../../layouts/Base.astro';
 import Nav from '../../components/Nav.astro';
 import Footer from '../../components/Footer.astro';
-import MobileMenu from '../../components/MobileMenu.astro';
 import { fetchPublishedProducts, storageUrl, formatPrice, type ProductWithImages } from '../../lib/supabase';
 
 const FALLBACK_IMG = 'https://bswmrfxdadcmuyhmsagv.supabase.co/storage/v1/object/public/portfolio-images/test.jpeg';
@@ -38,23 +33,71 @@ const stockClass = isSold ? 'details__stock--sold' : isReserved ? 'details__stoc
 
 const titleHtml = product.title.replace(/(\b\w+)$/, '<em>$1</em>');
 const description = product.description ?? '';
+// Inline lede: prefer the short marketing summary if it exists, otherwise use
+// the long description so this never renders empty.
+const ledeText = (product.meta_description?.trim() || description.trim()) || '';
+// Only show the long "About this piece" section when it adds new content
+// beyond what the lede already says — avoid duplicating the same paragraph.
+const showStory = !!description && description.trim() !== ledeText.trim();
+
+const listedDate = (() => {
+  const iso = product.published_at ?? product.created_at;
+  if (!iso) return null;
+  try {
+    return new Date(iso).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  } catch {
+    return null;
+  }
+})();
+
+const SITE_URL = 'https://tackyturquoise.com';
+const productUrl = `${SITE_URL}/products/${product.slug}`;
+const primaryImage = images[0]?.url ?? '';
+const allImageUrls = images.map((i) => i.url);
+
+const seoDescription =
+  product.meta_description?.trim() ||
+  [
+    product.title,
+    product.length ? `${product.length} length` : null,
+    'Handmade one-of-a-kind turquoise necklace by Tacky Turquoise.',
+  ]
+    .filter(Boolean)
+    .join(' · ');
+
+const productJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: product.title,
+  description: (description || seoDescription).trim(),
+  image: allImageUrls.length ? allImageUrls : [primaryImage],
+  ...(product.piece_id ? { sku: product.piece_id } : {}),
+  brand: { '@type': 'Brand', name: 'Tacky Turquoise' },
+  offers: {
+    '@type': 'Offer',
+    url: productUrl,
+    priceCurrency: 'USD',
+    price: (product.price_cents / 100).toFixed(2),
+    availability: isSold
+      ? 'https://schema.org/SoldOut'
+      : isReserved
+        ? 'https://schema.org/LimitedAvailability'
+        : 'https://schema.org/InStock',
+    itemCondition: 'https://schema.org/NewCondition',
+  },
+};
 ---
 
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{product.title} — Tacky Turquoise</title>
-    <meta name="description" content={product.meta_description ?? product.title} />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Monoton&family=Sacramento&family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
-    />
-  </head>
-  <body>
+<Base
+  title={product.title}
+  description={seoDescription}
+  image={primaryImage}
+  imageAlt={`${product.title} — turquoise necklace`}
+  type="product"
+  canonical={productUrl}
+>
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(productJsonLd)} />
+
     <Nav current="shop" />
 
     <section class="product">
@@ -63,7 +106,7 @@ const description = product.description ?? '';
       </div>
 
       <div class="product__layout">
-        <div class="gallery">
+        <div class={`gallery${images.length === 1 ? ' is-single' : ''}`}>
           <div class="gallery__main" id="gallery-main">
             {product.featured && !isSold && <span class="gallery__badge">Featured</span>}
             {isSold && <span class="gallery__badge gallery__badge--sold">Sold</span>}
@@ -105,14 +148,14 @@ const description = product.description ?? '';
             <span class={`details__stock ${stockClass}`}>{stockLabel}</span>
           </div>
 
-          {product.meta_description && <p class="details__lede">{product.meta_description}</p>}
+          {ledeText && <p class="details__lede">{ledeText}</p>}
 
           <ul class="details__specs">
             {product.piece_id && <li><span>Piece ID</span><span>{product.piece_id}</span></li>}
             {product.length && <li><span>Length</span><span>{product.length}</span></li>}
-            <li><span>Edition</span><span>1 of 1 · signed &amp; dated</span></li>
-            <li><span>Materials</span><span>Sterling silver · natural turquoise</span></li>
-            <li><span>Lead time</span><span>{available ? 'Ships in 3–5 days' : isReserved ? 'Currently reserved' : 'No longer available'}</span></li>
+            <li><span>Price</span><span>{formatPrice(product.price_cents)}</span></li>
+            {product.featured && <li><span>Tag</span><span>Featured</span></li>}
+            {listedDate && <li><span>Listed</span><span>{listedDate}</span></li>}
           </ul>
 
           <div class="details__actions">
@@ -133,14 +176,14 @@ const description = product.description ?? '';
 
           <div class="details__trust">
             <div class="trust-item"><strong>Real stone</strong>Never reconstituted</div>
-            <div class="trust-item"><strong>Made by hand</strong>Gallup, NM</div>
+            <div class="trust-item"><strong>Made by hand</strong>Montrose, CO</div>
             <div class="trust-item"><strong>Free returns</strong>Within 14 days</div>
           </div>
         </div>
       </div>
     </section>
 
-    {description && (
+    {showStory && (
       <section class="product-story">
         <div class="product-story__inner">
           <div class="product-story__label">About this piece</div>
@@ -155,7 +198,6 @@ const description = product.description ?? '';
     </div>
 
     <Footer />
-    <MobileMenu />
 
     <script>
       const thumbs = document.querySelectorAll<HTMLButtonElement>('.gallery__thumb');
@@ -296,5 +338,4 @@ const description = product.description ?? '';
         render();
       })();
     </script>
-  </body>
-</html>
+</Base>

@@ -413,22 +413,25 @@ footer { background: var(--c-ink); color: var(--c-cream); padding: 80px 48px 32p
     grid-template-columns: 1fr auto 1fr;
     grid-template-rows: auto auto;
     align-items: center;
-    padding: 20px 32px 32px;
+    padding: 10px 32px 12px;
     column-gap: 14px;
-    row-gap: 22px;
+    row-gap: 6px;
   }
   .nav__links { display: none; }
   .nav__logo {
     grid-row: 2;
     grid-column: 1 / -1;
     justify-self: center;
+    margin-top: -8px;
   }
-  .nav__logo img { height: 160px; }
+  .nav__logo img { height: 128px; }
 
   .nav__right { display: contents; }
-  .nav__right a:not(.cart) { display: none; }
+  /* Hide every link in nav__right except the cart badge (Journal etc.) */
+  .nav__right > a:not(.cart-badge) { display: none; }
 
-  .nav__right .cart {
+  /* Cart badge goes left, hamburger goes right; logo (row 2) sits between */
+  .nav__right .cart-badge {
     grid-row: 1;
     grid-column: 1;
     justify-self: start;
@@ -465,8 +468,8 @@ footer { background: var(--c-ink); color: var(--c-cream); padding: 80px 48px 32p
 }
 
 @media (max-width: 768px) {
-  .nav { padding: 18px 24px 28px; row-gap: 18px; }
-  .nav__logo img { height: 136px; }
+  .nav { padding: 8px 24px 10px; row-gap: 4px; }
+  .nav__logo img { height: 108px; }
   .nav__right { font-size: 10px; }
 
   .hero { min-height: 620px; }
@@ -521,9 +524,11 @@ footer { background: var(--c-ink); color: var(--c-cream); padding: 80px 48px 32p
 }
 
 @media (max-width: 480px) {
-  .nav { padding: 14px 16px 22px; column-gap: 10px; row-gap: 14px; }
-  .nav__logo img { height: 112px; }
-  .nav__right .cart { padding: 8px 14px; font-size: 10px; }
+  .nav { padding: 6px 16px 8px; column-gap: 10px; row-gap: 2px; }
+  .nav__logo img { height: 88px; }
+  /* Compact cart on the smallest phones: icon + count only, drop the "Bag" word */
+  .nav__right .cart-badge { padding: 8px 12px; gap: 8px; }
+  .nav__right .cart-badge .cart-badge__label { display: none; }
 
   .hero { min-height: 540px; }
   .hero__content {

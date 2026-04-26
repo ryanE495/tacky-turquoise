@@ -1,13 +1,7 @@
 ---
-import '../styles/tokens.css';
-import '../styles/global.css';
-import '../styles/components.css';
-import '../styles/shop.css';
-import '../styles/mobile-menu.css';
-
+import Base from '../layouts/Base.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
-import MobileMenu from '../components/MobileMenu.astro';
 import { fetchPublishedProducts, storageUrl, formatPrice } from '../lib/supabase';
 
 const FALLBACK_IMG = 'https://bswmrfxdadcmuyhmsagv.supabase.co/storage/v1/object/public/portfolio-images/test.jpeg';
@@ -85,20 +79,10 @@ const stockClass = (s: string) => (s === 'low' ? 'is-low' : s === 'oos' ? 'is-oo
 const titleHtml = (t: string) => t.replace(/(\b\w+)$/, '<em>$1</em>');
 ---
 
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Tacky Turquoise — Shop</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Monoton&family=Sacramento&family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
-    />
-  </head>
-  <body class="density-4 card-standard">
+<Base
+  title="Shop All Pieces"
+  description="Browse our current collection of handmade turquoise necklaces. Each piece is one-of-a-kind. New drops added regularly."
+>
     <Nav current="shop" />
 
     <header class="shop-header">
@@ -107,19 +91,11 @@ const titleHtml = (t: string) => t.replace(/(\b\w+)$/, '<em>$1</em>');
         <h1 class="reveal">The <em>whole</em> <br />shop.</h1>
         <p class="shop-header__sub reveal">
           <strong>{viewModels.length} {viewModels.length === 1 ? 'piece' : 'pieces'}, every one 1 of 1.</strong>
-          Signed, dated, and made by hand. Nothing gets restocked — when it's gone,
+          Made by hand. Nothing gets restocked — when it's gone,
           it's gone to someone's neck, wrist, or finger.
         </p>
       </div>
     </header>
-
-    <div class="subnav" id="subnav">
-      {categories.map((c, i) => (
-        <button class={`subnav__item${i === 0 ? ' is-active' : ''}`} data-cat={c.key}>
-          {c.label}{c.em && <em>{c.em}</em>} <span class="count">{catCount(c.key)}</span>
-        </button>
-      ))}
-    </div>
 
     <div class="filters">
       <div class="filters__chips">
@@ -212,7 +188,6 @@ const titleHtml = (t: string) => t.replace(/(\b\w+)$/, '<em>$1</em>');
     </section>
 
     <Footer />
-    <MobileMenu />
 
     <script>
       const state = {
@@ -413,5 +388,4 @@ const titleHtml = (t: string) => t.replace(/(\b\w+)$/, '<em>$1</em>');
         }
       })();
     </script>
-  </body>
-</html>
+</Base>

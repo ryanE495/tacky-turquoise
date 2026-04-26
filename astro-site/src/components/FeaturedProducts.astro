@@ -1,0 +1,115 @@
+---
+import { fetchFeaturedProducts, storageUrl, formatPrice } from '../lib/supabase';
+
+const FALLBACK_IMG = 'https://bswmrfxdadcmuyhmsagv.supabase.co/storage/v1/object/public/portfolio-images/test.jpeg';
+
+const products = await fetchFeaturedProducts();
+
+const now = Date.now();
+const viewModels = products.map((p) => {
+  const isReserved = p.reserved_until && new Date(p.reserved_until).getTime() > now;
+  const stock = p.sold_at ? 'oos' : isReserved ? 'low' : 'ok';
+  const firstImage = p.product_images[0];
+  const secondImage = p.product_images[1] ?? firstImage;
+  return {
+    id: p.id,
+    slug: p.slug,
+    title: p.title,
+    pieceId: p.piece_id,
+    priceLabel: formatPrice(p.price_cents),
+    stock,
+    lenStr: p.length ?? 'One size',
+    imgA: firstImage ? storageUrl(firstImage.storage_path) : FALLBACK_IMG,
+    imgB: secondImage ? storageUrl(secondImage.storage_path) : FALLBACK_IMG,
+  };
+});
+
+const stockLabel = (s: string) => (s === 'low' ? 'Reserved' : s === 'oos' ? 'Sold' : 'Available');
+const stockClass = (s: string) => (s === 'low' ? 'is-low' : s === 'oos' ? 'is-oos' : '');
+const titleHtml = (t: string) => t.replace(/(\b\w+)$/, '<em>$1</em>');
+---
+{viewModels.length > 0 && (
+  <section class="featured-products shop">
+    <header class="featured-products__head">
+      <div class="featured-products__eyebrow">◆ Featured</div>
+      <h2 class="featured-products__title">From the <em>studio.</em></h2>
+      <a href="/shop" class="featured-products__all">Shop all <span aria-hidden="true">→</span></a>
+    </header>
+    <div class="shop__grid featured-products__grid" data-featured-grid>
+      {viewModels.map((v) => (
+        <a
+          href={`/products/${v.slug}`}
+          class={`prod${v.stock === 'oos' ? ' is-oos' : ''}`}
+          data-id={v.id}
+        >
+          <div class="prod__img">
+            <img class="prod__img-a" src={v.imgA} alt={v.title} loading="lazy" />
+            <img class="prod__img-b" src={v.imgB} alt="" loading="lazy" />
+            {v.stock === 'oos' && <span class="prod__tag prod__tag--sold">Sold</span>}
+            <span class="prod__quick">
+              <span>{v.stock === 'oos' ? 'Waitlist' : 'View piece'}</span>
+              <span>→</span>
+            </span>
+          </div>
+          <div class="prod__row">
+            <span class="prod__name" set:html={titleHtml(v.title)}></span>
+            <span class="prod__price">{v.priceLabel}</span>
+          </div>
+          <div class="prod__meta">
+            <span>{v.pieceId ?? '—'} · {v.lenStr}</span>
+            <span class={`prod__stock ${stockClass(v.stock)}`}>{stockLabel(v.stock)}</span>
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+)}
+
+<script>
+  // Live status sync — same pattern as the shop page so a piece sold after build
+  // shows correctly here too.
+  import { supabase } from '../lib/supabase';
+  (async function () {
+    const cards = Array.from(document.querySelectorAll<HTMLElement>('[data-featured-grid] .prod[data-id]'));
+    if (!cards.length) return;
+    const ids = cards.map((c) => c.dataset.id!).filter(Boolean);
+    if (!ids.length) return;
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('id, status, sold_at, reserved_until')
+        .in('id', ids);
+      if (error || !data) return;
+      const now = Date.now();
+      const byId = new Map(data.map((p: any) => [p.id, p]));
+      cards.forEach((card) => {
+        const p = byId.get(card.dataset.id!) as any | undefined;
+        const isSold = !p || p.status !== 'published' || !!p.sold_at;
+        const isReserved = !isSold && p.reserved_until && new Date(p.reserved_until).getTime() > now;
+        card.classList.toggle('is-oos', isSold);
+        const tag = card.querySelector<HTMLElement>('.prod__tag');
+        if (isSold) {
+          if (tag) { tag.textContent = 'Sold'; tag.className = 'prod__tag prod__tag--sold'; }
+          else {
+            const img = card.querySelector<HTMLElement>('.prod__img');
+            if (img) {
+              const t = document.createElement('span');
+              t.className = 'prod__tag prod__tag--sold';
+              t.textContent = 'Sold';
+              img.prepend(t);
+            }
+          }
+        }
+        const quick = card.querySelector<HTMLElement>('.prod__quick > span:first-child');
+        if (quick) quick.textContent = isSold ? 'Waitlist' : 'View piece';
+        const stockEl = card.querySelector<HTMLElement>('.prod__stock');
+        if (stockEl) {
+          stockEl.classList.remove('is-low','is-oos');
+          if (isSold) { stockEl.textContent = 'Sold'; stockEl.classList.add('is-oos'); }
+          else if (isReserved) { stockEl.textContent = 'Reserved'; stockEl.classList.add('is-low'); }
+          else stockEl.textContent = 'Available';
+        }
+      });
+    } catch { /* ignore */ }
+  })();
+</script>

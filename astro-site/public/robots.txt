@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /order/success
+Disallow: /order/failed
+Disallow: /checkout
+Disallow: /cart
+
+Sitemap: https://tackyturquoise.com/sitemap-index.xml

@@ -1,0 +1,23 @@
+---
+import Base from '../layouts/Base.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+---
+<Base
+  title="Page not found"
+  description="That page doesn't exist on Tacky Turquoise. Try the shop instead."
+  noindex={true}
+>
+  <Nav />
+  <section class="storefront-page">
+    <div class="storefront-page__inner" style="text-align:center; padding-block: 96px;">
+      <div class="storefront-page__crumb"><a href="/">Home</a> &nbsp;/&nbsp; 404</div>
+      <h1 class="storefront-page__title">That piece is <em>gone.</em></h1>
+      <p style="margin: 24px auto 32px; max-width: 48ch; font-family: var(--f-cute); font-size: clamp(22px, 2vw, 28px); color: var(--c-ink);">
+        The page you were looking for isn't here. It may have sold, moved, or never existed.
+      </p>
+      <a href="/shop" class="cta cta--primary">Back to the shop →</a>
+    </div>
+  </section>
+  <Footer />
+</Base>

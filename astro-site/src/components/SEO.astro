@@ -1,0 +1,58 @@
+---
+export interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  imageAlt?: string;
+  type?: 'website' | 'article' | 'product';
+  canonical?: string;
+  noindex?: boolean;
+}
+
+const SITE_NAME = 'Tacky Turquoise';
+const SITE_URL = 'https://tackyturquoise.com';
+const DEFAULT_TITLE = 'Tacky Turquoise — Handmade Turquoise Necklaces';
+const DEFAULT_DESCRIPTION =
+  'Handmade, one-of-a-kind turquoise beaded necklaces. Each piece unique. Made in Colorado, shipped across the US.';
+const DEFAULT_OG_IMAGE = `${SITE_URL}/og-default.jpg`;
+const THEME_COLOR = '#01edf8';
+
+const {
+  title,
+  description = DEFAULT_DESCRIPTION,
+  image,
+  imageAlt = 'Tacky Turquoise — handmade turquoise necklaces',
+  type = 'website',
+  canonical,
+  noindex = false,
+} = Astro.props;
+
+const fullTitle = title ? `${title} | ${SITE_NAME}` : DEFAULT_TITLE;
+const ogImage = image ?? DEFAULT_OG_IMAGE;
+const pageUrl = canonical ?? new URL(Astro.url.pathname, SITE_URL).toString();
+---
+<title>{fullTitle}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={pageUrl} />
+
+<meta property="og:type" content={type} />
+<meta property="og:title" content={fullTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={pageUrl} />
+<meta property="og:image" content={ogImage} />
+<meta property="og:image:alt" content={imageAlt} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:site_name" content={SITE_NAME} />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={fullTitle} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImage} />
+
+{noindex && <meta name="robots" content="noindex, nofollow" />}
+
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="alternate icon" href="/favicon.ico" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<meta name="theme-color" content={THEME_COLOR} />
