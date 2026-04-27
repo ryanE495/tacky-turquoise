@@ -5,6 +5,7 @@ import Base from '../../layouts/Base.astro';
 import Nav from '../../components/Nav.astro';
 import Footer from '../../components/Footer.astro';
 import { fetchPublishedProducts, storageUrl, formatPrice, type ProductWithImages } from '../../lib/supabase';
+import { getProductImageUrl } from '../../lib/image-url';
 
 const FALLBACK_IMG = 'https://bswmrfxdadcmuyhmsagv.supabase.co/storage/v1/object/public/portfolio-images/test.jpeg';
 
@@ -115,10 +116,15 @@ const productJsonLd = {
             </button>
             {images.map((img, i) => (
               <img
-                src={img.url}
+                src={getProductImageUrl(img.url, 'detail')}
                 alt={img.alt}
                 class={i === 0 ? '' : 'is-hidden'}
                 data-idx={i}
+                data-zoom={getProductImageUrl(img.url, 'lightbox')}
+                loading={i === 0 ? 'eager' : 'lazy'}
+                decoding="async"
+                width="1200"
+                height="1200"
               />
             ))}
           </div>
@@ -126,7 +132,14 @@ const productJsonLd = {
             <div class="gallery__thumbs">
               {images.map((img, i) => (
                 <button class={`gallery__thumb${i === 0 ? ' is-active' : ''}`} data-idx={i} aria-label={`View image ${i + 1}`}>
-                  <img src={img.url} alt="" />
+                  <img
+                    src={getProductImageUrl(img.url, 'thumbnail')}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    width="200"
+                    height="200"
+                  />
                 </button>
               ))}
             </div>
@@ -233,7 +246,7 @@ const productJsonLd = {
       zoomBtn?.addEventListener('click', () => {
         const active = mainImgs[current];
         if (!active) return;
-        zoomImg.src = active.src;
+        zoomImg.src = active.dataset.zoom || active.src;
         zoomImg.alt = active.alt;
         zoomModal.classList.add('is-open');
       });

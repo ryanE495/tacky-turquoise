@@ -1,5 +1,6 @@
 ---
 import { fetchFeaturedProducts, storageUrl, formatPrice } from '../lib/supabase';
+import { getProductImageUrl } from '../lib/image-url';
 
 const FALLBACK_IMG = 'https://bswmrfxdadcmuyhmsagv.supabase.co/storage/v1/object/public/portfolio-images/test.jpeg';
 
@@ -43,8 +44,24 @@ const titleHtml = (t: string) => t.replace(/(\b\w+)$/, '<em>$1</em>');
           data-id={v.id}
         >
           <div class="prod__img">
-            <img class="prod__img-a" src={v.imgA} alt={v.title} loading="lazy" />
-            <img class="prod__img-b" src={v.imgB} alt="" loading="lazy" />
+            <img
+              class="prod__img-a"
+              src={getProductImageUrl(v.imgA, 'card')}
+              alt={v.title}
+              loading="lazy"
+              decoding="async"
+              width="400"
+              height="400"
+            />
+            <img
+              class="prod__img-b"
+              src={getProductImageUrl(v.imgB, 'card')}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              width="400"
+              height="400"
+            />
             {v.stock === 'oos' && <span class="prod__tag prod__tag--sold">Sold</span>}
             <span class="prod__quick">
               <span>{v.stock === 'oos' ? 'Waitlist' : 'View piece'}</span>

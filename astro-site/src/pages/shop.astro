@@ -3,6 +3,7 @@ import Base from '../layouts/Base.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 import { fetchPublishedProducts, storageUrl, formatPrice } from '../lib/supabase';
+import { getProductImageUrl } from '../lib/image-url';
 
 const FALLBACK_IMG = 'https://bswmrfxdadcmuyhmsagv.supabase.co/storage/v1/object/public/portfolio-images/test.jpeg';
 
@@ -162,8 +163,25 @@ const availableLengths = Array.from(
                 data-idx={v.idx}
               >
                 <div class="prod__img">
-                  <img class="prod__img-a" src={v.imgA} alt={v.title} />
-                  <img class="prod__img-b" src={v.imgB} alt="" />
+                  <img
+                    class="prod__img-a"
+                    src={getProductImageUrl(v.imgA, 'card')}
+                    alt={v.title}
+                    loading={v.idx < 4 ? 'eager' : 'lazy'}
+                    fetchpriority={v.idx < 4 ? 'high' : 'auto'}
+                    decoding="async"
+                    width="400"
+                    height="400"
+                  />
+                  <img
+                    class="prod__img-b"
+                    src={getProductImageUrl(v.imgB, 'card')}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    width="400"
+                    height="400"
+                  />
                   {tag && <span class={`prod__tag ${tag.cls}`}>{tag.label}</span>}
                   <button class="prod__heart" aria-label="Save">
                     <svg viewBox="0 0 24 24"><path d="M12 20s-7-4.5-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 5c-2.5 4.5-9.5 9-9.5 9z" /></svg>

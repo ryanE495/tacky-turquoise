@@ -1,5 +1,6 @@
 import { formatPrice } from './format';
 import { supabase, storageUrl } from './supabase';
+import { getProductImageUrl } from './image-url';
 
 export interface CartItemData {
   id: string;
@@ -136,7 +137,7 @@ export function renderCartItemRow(item: CartItemData, opts: { showRemove?: boole
   return `
     <article class="cart-row" data-cart-row data-id="${esc(item.id)}">
       <a class="cart-row__img" href="/products/${esc(item.slug)}" aria-label="${esc(item.title)}">
-        <img src="${esc(item.primary_image_url ?? FALLBACK_IMG)}" alt="${esc(item.title)}" loading="lazy" />
+        <img src="${esc(getProductImageUrl(item.primary_image_url ?? FALLBACK_IMG, 'thumbnail'))}" alt="${esc(item.title)}" loading="lazy" decoding="async" width="200" height="200" />
       </a>
       <div class="cart-row__body">
         <div class="cart-row__head">
@@ -156,7 +157,7 @@ export function renderSummaryRow(item: CartItemData): string {
   return `
     <div class="summary-row">
       <div class="summary-row__img">
-        <img src="${esc(item.primary_image_url ?? FALLBACK_IMG)}" alt="" loading="lazy" />
+        <img src="${esc(getProductImageUrl(item.primary_image_url ?? FALLBACK_IMG, 'thumbnail'))}" alt="" loading="lazy" decoding="async" width="200" height="200" />
       </div>
       <div class="summary-row__body">
         <div class="summary-row__title">${esc(item.title)}</div>

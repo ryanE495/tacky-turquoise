@@ -1,4 +1,6 @@
 ---
+import { getProductImageUrl } from '../lib/image-url';
+
 export interface Props {
   title?: string;
   description?: string;
@@ -28,7 +30,7 @@ const {
 } = Astro.props;
 
 const fullTitle = title ? `${title} | ${SITE_NAME}` : DEFAULT_TITLE;
-const ogImage = image ?? DEFAULT_OG_IMAGE;
+const ogImage = image ? getProductImageUrl(image, 'og') : DEFAULT_OG_IMAGE;
 const pageUrl = canonical ?? new URL(Astro.url.pathname, SITE_URL).toString();
 ---
 <title>{fullTitle}</title>
