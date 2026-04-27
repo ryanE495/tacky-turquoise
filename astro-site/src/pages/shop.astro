@@ -77,6 +77,10 @@ const stockLabel = (s: string) => (s === 'low' ? 'Reserved' : s === 'oos' ? 'Sol
 const stockClass = (s: string) => (s === 'low' ? 'is-low' : s === 'oos' ? 'is-oos' : '');
 
 const titleHtml = (t: string) => t.replace(/(\b\w+)$/, '<em>$1</em>');
+
+const availableLengths = Array.from(
+  new Set(viewModels.flatMap((v) => v.lens))
+).sort((a, b) => a - b);
 ---
 
 <Base
@@ -91,8 +95,7 @@ const titleHtml = (t: string) => t.replace(/(\b\w+)$/, '<em>$1</em>');
         <h1 class="reveal">The <em>whole</em> <br />shop.</h1>
         <p class="shop-header__sub reveal">
           <strong>{viewModels.length} {viewModels.length === 1 ? 'piece' : 'pieces'}, every one 1 of 1.</strong>
-          Made by hand. Nothing gets restocked — when it's gone,
-          it's gone to someone's neck, wrist, or finger.
+          Made by hand. Nothing gets restocked — when it's gone, it's gone.
         </p>
       </div>
     </header>
@@ -101,12 +104,14 @@ const titleHtml = (t: string) => t.replace(/(\b\w+)$/, '<em>$1</em>');
       <div class="filters__chips">
         <button class="chip chip--toggle" data-toggle="instock">✓ In stock only</button>
 
-        <div class="filters__group">
-          <span class="filters__group-label">Length</span>
-          {[16, 18, 20, 24, 30].map((l) => (
-            <button class="chip" data-len={l}>{l}″</button>
-          ))}
-        </div>
+        {availableLengths.length > 0 && (
+          <div class="filters__group">
+            <span class="filters__group-label">Length</span>
+            {availableLengths.map((l) => (
+              <button class="chip" data-len={l}>{l}″</button>
+            ))}
+          </div>
+        )}
 
         <div class="filters__group">
           <span class="filters__group-label">Price</span>
