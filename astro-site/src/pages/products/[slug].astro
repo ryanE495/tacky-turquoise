@@ -168,7 +168,6 @@ const productJsonLd = {
             {product.length && <li><span>Length</span><span>{product.length}</span></li>}
             <li><span>Price</span><span>{formatPrice(product.price_cents)}</span></li>
             {product.featured && <li><span>Tag</span><span>Featured</span></li>}
-            {listedDate && <li><span>Listed</span><span>{listedDate}</span></li>}
           </ul>
 
           <div class="details__actions">
@@ -188,9 +187,7 @@ const productJsonLd = {
           </div>
 
           <div class="details__trust">
-            <div class="trust-item"><strong>Real stone</strong>Never reconstituted</div>
             <div class="trust-item"><strong>Made by hand</strong>Montrose, CO</div>
-            <div class="trust-item"><strong>Free returns</strong>Within 14 days</div>
           </div>
         </div>
       </div>
