@@ -56,18 +56,6 @@ const viewModels = products.map((p, i) => {
   };
 });
 
-const categories: { key: 'all' | Category; label: string; em?: string }[] = [
-  { key: 'all',      label: 'All ',      em: 'pieces' },
-  { key: 'necklace', label: 'Necklaces' },
-  { key: 'ring',     label: 'Rings' },
-  { key: 'cuff',     label: 'Cuffs' },
-  { key: 'earring',  label: 'Earrings' },
-  { key: 'belt',     label: 'Belts' },
-];
-
-const catCount = (k: string) =>
-  k === 'all' ? viewModels.length : viewModels.filter((p) => p.cat === k).length;
-
 const tagLabel = (v: (typeof viewModels)[number]): { label: string; cls: string } | null => {
   if (v.stock === 'oos') return { label: 'Sold', cls: 'prod__tag--sold' };
   if (v.featured) return { label: 'Featured', cls: 'prod__tag--hot' };
@@ -78,10 +66,6 @@ const stockLabel = (s: string) => (s === 'low' ? 'Reserved' : s === 'oos' ? 'Sol
 const stockClass = (s: string) => (s === 'low' ? 'is-low' : s === 'oos' ? 'is-oos' : '');
 
 const titleHtml = (t: string) => t.replace(/(\b\w+)$/, '<em>$1</em>');
-
-const availableLengths = Array.from(
-  new Set(viewModels.flatMap((v) => v.lens))
-).sort((a, b) => a - b);
 ---
 
 <Base
@@ -95,50 +79,10 @@ const availableLengths = Array.from(
       <div class="shop-header__row">
         <h1 class="reveal">The <em>whole</em> <br />shop.</h1>
         <p class="shop-header__sub reveal">
-          <strong>{viewModels.length} {viewModels.length === 1 ? 'piece' : 'pieces'}, every one 1 of 1.</strong>
           Made by hand. Nothing gets restocked — when it's gone, it's gone.
         </p>
       </div>
     </header>
-
-    <div class="filters">
-      <div class="filters__chips">
-        <button class="chip chip--toggle" data-toggle="instock">✓ In stock only</button>
-
-        {availableLengths.length > 0 && (
-          <div class="filters__group">
-            <span class="filters__group-label">Length</span>
-            {availableLengths.map((l) => (
-              <button class="chip" data-len={l}>{l}″</button>
-            ))}
-          </div>
-        )}
-
-        <div class="filters__group">
-          <span class="filters__group-label">Price</span>
-          <button class="chip" data-price="0-200">Under $200</button>
-          <button class="chip" data-price="200-500">$200–500</button>
-          <button class="chip" data-price="500-1000">$500–1k</button>
-          <button class="chip" data-price="1000-99999">$1k+</button>
-        </div>
-
-        <button class="chip chip--clear" id="clear">Clear all</button>
-      </div>
-
-      <div class="filters__right">
-        <div class="count-readout"><strong id="count-n">{viewModels.length}</strong> pieces</div>
-        <div class="sort">
-          Sort
-          <select id="sort">
-            <option value="featured">Featured</option>
-            <option value="newest">Newest</option>
-            <option value="low">Price: low → high</option>
-            <option value="high">Price: high → low</option>
-            <option value="stone">By stone</option>
-          </select>
-        </div>
-      </div>
-    </div>
 
     <section class="shop">
       {viewModels.length === 0 ? (
@@ -213,110 +157,13 @@ const availableLengths = Array.from(
     <Footer />
 
     <script>
-      const state = {
-        cat: 'all' as string,
-        instock: false,
-        lens: new Set<string>(),
-        prices: new Set<string>(),
-        sort: 'featured' as string,
-      };
-
-      function applyFilters() {
-        const cards = Array.from(document.querySelectorAll<HTMLElement>('#grid .prod'));
-        let visible = 0;
-        cards.forEach((card) => {
-          const cat = card.dataset.cat!;
-          const price = +card.dataset.price!;
-          const lens = card.dataset.len ? card.dataset.len.split(',').map(Number) : [];
-          const stock = card.dataset.stock!;
-
-          let ok = true;
-          if (state.cat !== 'all' && cat !== state.cat) ok = false;
-          if (state.instock && stock === 'oos') ok = false;
-          if (state.lens.size && !lens.some((l) => state.lens.has(String(l)))) ok = false;
-          if (state.prices.size) {
-            const hit = [...state.prices].some((range) => {
-              const [lo, hi] = range.split('-').map(Number);
-              return price >= lo && price <= hi;
-            });
-            if (!hit) ok = false;
-          }
-          card.classList.toggle('is-hidden', !ok);
-          if (ok) visible++;
-        });
-
-        const grid = document.getElementById('grid')!;
-        const sorted = cards.slice().sort((a, b) => {
-          switch (state.sort) {
-            case 'low':    return +a.dataset.price! - +b.dataset.price!;
-            case 'high':   return +b.dataset.price! - +a.dataset.price!;
-            case 'newest': return +b.dataset.idx! - +a.dataset.idx!;
-            case 'stone':  return a.dataset.stone!.localeCompare(b.dataset.stone!);
-            default:       return +a.dataset.idx! - +b.dataset.idx!;
-          }
-        });
-        sorted.forEach((el) => grid.appendChild(el));
-
-        document.getElementById('count-n')!.textContent = String(visible);
-        document.getElementById('empty')!.classList.toggle('is-show', visible === 0);
-      }
-
       document.addEventListener('click', (e) => {
         const target = e.target as HTMLElement;
-        const chip = target.closest<HTMLElement>('.chip');
-        const sub = target.closest<HTMLElement>('.subnav__item');
         const heart = target.closest<HTMLElement>('.prod__heart');
-
         if (heart) {
           e.preventDefault();
           heart.classList.toggle('is-on');
-          return;
         }
-
-        if (sub) {
-          document.querySelectorAll('.subnav__item').forEach((b) => b.classList.remove('is-active'));
-          sub.classList.add('is-active');
-          state.cat = sub.dataset.cat!;
-          applyFilters();
-          return;
-        }
-
-        if (chip?.id === 'clear') {
-          state.instock = false;
-          state.lens.clear();
-          state.prices.clear();
-          document.querySelectorAll('.chip.is-on').forEach((c) => c.classList.remove('is-on'));
-          applyFilters();
-          return;
-        }
-
-        if (chip?.dataset.toggle === 'instock') {
-          state.instock = !state.instock;
-          chip.classList.toggle('is-on', state.instock);
-          applyFilters();
-          return;
-        }
-
-        if (chip?.dataset.len) {
-          chip.classList.toggle('is-on');
-          if (chip.classList.contains('is-on')) state.lens.add(chip.dataset.len);
-          else state.lens.delete(chip.dataset.len);
-          applyFilters();
-          return;
-        }
-
-        if (chip?.dataset.price) {
-          chip.classList.toggle('is-on');
-          if (chip.classList.contains('is-on')) state.prices.add(chip.dataset.price);
-          else state.prices.delete(chip.dataset.price);
-          applyFilters();
-          return;
-        }
-      });
-
-      document.getElementById('sort')!.addEventListener('change', (e) => {
-        state.sort = (e.target as HTMLSelectElement).value;
-        applyFilters();
       });
 
       const io = new IntersectionObserver(
