@@ -66,6 +66,8 @@ const stockLabel = (s: string) => (s === 'low' ? 'Reserved' : s === 'oos' ? 'Sol
 const stockClass = (s: string) => (s === 'low' ? 'is-low' : s === 'oos' ? 'is-oos' : '');
 
 const titleHtml = (t: string) => t.replace(/(\b\w+)$/, '<em>$1</em>');
+
+const hasAnyLength = viewModels.some((v) => v.lens.length > 0);
 ---
 
 <Base
@@ -83,6 +85,19 @@ const titleHtml = (t: string) => t.replace(/(\b\w+)$/, '<em>$1</em>');
         </p>
       </div>
     </header>
+
+    {hasAnyLength && (
+      <div class="shop-sort-bar">
+        <div class="sort">
+          Sort by length
+          <select id="length-sort" aria-label="Sort by length">
+            <option value="default">Featured</option>
+            <option value="longest">Longest first</option>
+            <option value="shortest">Shortest first</option>
+          </select>
+        </div>
+      </div>
+    )}
 
     <section class="shop">
       {viewModels.length === 0 ? (
@@ -165,6 +180,39 @@ const titleHtml = (t: string) => t.replace(/(\b\w+)$/, '<em>$1</em>');
           heart.classList.toggle('is-on');
         }
       });
+
+      const sortSelect = document.getElementById('length-sort') as HTMLSelectElement | null;
+      if (sortSelect) {
+        const grid = document.getElementById('grid');
+        const cards = grid ? Array.from(grid.querySelectorAll<HTMLElement>('.prod')) : [];
+        const maxLen = (el: HTMLElement) => {
+          const raw = el.dataset.len ?? '';
+          const nums = raw.split(',').map(Number).filter((n) => Number.isFinite(n) && n > 0);
+          return nums.length ? Math.max(...nums) : 0;
+        };
+        sortSelect.addEventListener('change', () => {
+          if (!grid) return;
+          const v = sortSelect.value;
+          const sorted = cards.slice().sort((a, b) => {
+            if (v === 'longest') {
+              const al = maxLen(a), bl = maxLen(b);
+              if (al === 0 && bl === 0) return +a.dataset.idx! - +b.dataset.idx!;
+              if (al === 0) return 1;
+              if (bl === 0) return -1;
+              return bl - al;
+            }
+            if (v === 'shortest') {
+              const al = maxLen(a), bl = maxLen(b);
+              if (al === 0 && bl === 0) return +a.dataset.idx! - +b.dataset.idx!;
+              if (al === 0) return 1;
+              if (bl === 0) return -1;
+              return al - bl;
+            }
+            return +a.dataset.idx! - +b.dataset.idx!;
+          });
+          sorted.forEach((el) => grid.appendChild(el));
+        });
+      }
 
       const io = new IntersectionObserver(
         (entries) => {

@@ -113,6 +113,18 @@
 .chip--clear:hover { text-decoration: underline; }
 
 .filters__right { display: flex; gap: 20px; align-items: center; }
+
+.shop-sort-bar {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 8px 48px 0;
+  display: flex;
+  justify-content: flex-end;
+}
+@media (max-width: 1024px) { .shop-sort-bar { padding: 8px 40px 0; } }
+@media (max-width: 768px)  { .shop-sort-bar { padding: 8px 32px 0; } }
+@media (max-width: 480px)  { .shop-sort-bar { padding: 8px 18px 0; justify-content: center; } }
+
 .sort {
   display: flex; align-items: center; gap: 8px;
   font-family: var(--f-mono); font-size: 10px; letter-spacing: .22em; text-transform: uppercase;
