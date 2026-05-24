@@ -99,11 +99,14 @@ const productJsonLd = {
 >
   <script is:inline type="application/ld+json" set:html={JSON.stringify(productJsonLd)} />
 
-    <Nav current="shop" />
+    <Nav current={product.silver_jewelry ? 'silver' : 'shop'} />
 
     <section class="product">
       <div class="product__crumb">
-        <a href="/">Home</a> &nbsp;/&nbsp; <a href="/shop">Shop</a> &nbsp;/&nbsp; {product.title}
+        <a href="/">Home</a> &nbsp;/&nbsp; {product.silver_jewelry
+          ? <a href="/silver-jewelry">Silver</a>
+          : <a href="/shop">Shop</a>
+        } &nbsp;/&nbsp; {product.title}
       </div>
 
       <div class="product__layout">

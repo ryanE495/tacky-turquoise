@@ -1,18 +1,34 @@
 ---
-const BG = 'https://ozxbjwvwchesjgebenbv.supabase.co/storage/v1/object/public/media/fa674f03-6145-4b55-9feb-83ce320f846d.webp';
+const BEADED_BG = 'https://ozxbjwvwchesjgebenbv.supabase.co/storage/v1/object/public/media/fa674f03-6145-4b55-9feb-83ce320f846d.webp';
+// TODO: swap with a real silversmithing image when you have one.
+const SILVER_BG = 'https://ozxbjwvwchesjgebenbv.supabase.co/storage/v1/object/public/media/6610720e-2a1b-4fbb-8c5a-fc1cb65a2099.webp';
 ---
-<section class="ed-banner ed-banner--new" aria-labelledby="shop-new-h">
-  <a class="ed-banner__link" href="/shop">
-    <img class="ed-banner__img" src={BG} alt="" />
-    <div class="ed-banner__overlay"></div>
-    <div class="ed-banner__content">
-      <div class="ed-banner__eyebrow">New arrivals · Ready to ship</div>
-      <h2 id="shop-new-h" class="ed-banner__title">Shop <em>new.</em></h2>
-      <p class="ed-banner__sub">The latest pieces from the studio — one of one and ready to ship from Montrose.</p>
-      <span class="ed-banner__cta">
-        <span>Shop new</span>
-        <span class="arrow" aria-hidden="true">→</span>
-      </span>
-    </div>
-  </a>
+<section class="banner-split">
+  <article class="ed-banner ed-banner--short banner-split__half" aria-labelledby="shop-beaded-h">
+    <a class="ed-banner__link" href="/shop">
+      <img class="ed-banner__img" src={BEADED_BG} alt="" />
+      <div class="ed-banner__overlay"></div>
+      <div class="ed-banner__content">
+        <h2 id="shop-beaded-h" class="ed-banner__title">Beaded <em>necklaces.</em></h2>
+        <span class="ed-banner__cta">
+          <span>Shop beaded</span>
+          <span class="arrow" aria-hidden="true">→</span>
+        </span>
+      </div>
+    </a>
+  </article>
+
+  <article class="ed-banner ed-banner--short banner-split__half" aria-labelledby="shop-silver-h">
+    <a class="ed-banner__link" href="/silver-jewelry">
+      <img class="ed-banner__img" src={SILVER_BG} alt="" />
+      <div class="ed-banner__overlay"></div>
+      <div class="ed-banner__content">
+        <h2 id="shop-silver-h" class="ed-banner__title">Silver jewelry, <br /><em>made by me.</em></h2>
+        <span class="ed-banner__cta">
+          <span>Shop sterling</span>
+          <span class="arrow" aria-hidden="true">→</span>
+        </span>
+      </div>
+    </a>
+  </article>
 </section>

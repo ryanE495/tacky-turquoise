@@ -2,39 +2,21 @@
 import Base from '../layouts/Base.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
-import { fetchPublishedBeadedProducts, storageUrl, formatPrice } from '../lib/supabase';
+import { fetchPublishedSilverProducts, storageUrl, formatPrice, type ProductWithImages } from '../lib/supabase';
 import { getProductImageUrl } from '../lib/image-url';
 
 const FALLBACK_IMG = 'https://bswmrfxdadcmuyhmsagv.supabase.co/storage/v1/object/public/portfolio-images/test.jpeg';
 
-const products = await fetchPublishedBeadedProducts();
-
-type Category = 'necklace' | 'ring' | 'cuff' | 'earring' | 'belt' | 'other';
-const categoryFromPieceId = (pieceId: string | null): Category => {
-  const prefix = (pieceId ?? '').charAt(0).toUpperCase();
-  if (prefix === 'N') return 'necklace';
-  if (prefix === 'R') return 'ring';
-  if (prefix === 'C') return 'cuff';
-  if (prefix === 'E') return 'earring';
-  if (prefix === 'B') return 'belt';
-  return 'other';
-};
+const products = await fetchPublishedSilverProducts();
 
 const now = Date.now();
-const stockFromProduct = (p: (typeof products)[number]) => {
+const stockFromProduct = (p: ProductWithImages) => {
   if (p.sold_at) return 'oos';
   if (p.reserved_until && new Date(p.reserved_until).getTime() > now) return 'low';
   return 'ok';
 };
 
-const parseLen = (len: string | null): number[] => {
-  if (!len) return [];
-  return Array.from(len.matchAll(/(\d+)/g)).map((m) => +m[1]);
-};
-
-const viewModels = products.map((p, i) => {
-  const cat = categoryFromPieceId(p.piece_id);
-  const lens = parseLen(p.length);
+const viewModels = products.map((p: ProductWithImages, i: number) => {
   const stock = stockFromProduct(p);
   const firstImage = p.product_images[0];
   const secondImage = p.product_images[1] ?? firstImage;
@@ -46,11 +28,9 @@ const viewModels = products.map((p, i) => {
     pieceId: p.piece_id,
     price: p.price_cents / 100,
     priceLabel: formatPrice(p.price_cents),
-    cat,
-    lens,
     stock,
     featured: p.featured,
-    lenStr: p.length ?? 'One size',
+    lenStr: p.length ?? '',
     imgA: firstImage ? storageUrl(firstImage.storage_path) : FALLBACK_IMG,
     imgB: secondImage ? storageUrl(secondImage.storage_path) : FALLBACK_IMG,
   };
@@ -66,44 +46,29 @@ const stockLabel = (s: string) => (s === 'low' ? 'Reserved' : s === 'oos' ? 'Sol
 const stockClass = (s: string) => (s === 'low' ? 'is-low' : s === 'oos' ? 'is-oos' : '');
 
 const titleHtml = (t: string) => t.replace(/(\b\w+)$/, '<em>$1</em>');
-
-const hasAnyLength = viewModels.some((v) => v.lens.length > 0);
 ---
 
 <Base
-  title="Shop All Pieces"
-  description="Browse our current collection of handmade turquoise necklaces. Each piece is one-of-a-kind. New drops added regularly."
+  title="Silver Jewelry"
+  description="Silversmithed turquoise jewelry — one-of-a-kind pieces, made by hand."
 >
-    <Nav current="shop" />
+    <Nav current="silver" />
 
     <header class="shop-header">
-      <div class="shop-header__crumb"><a href="/">Home</a> &nbsp;/&nbsp; Shop &nbsp;/&nbsp; All Pieces</div>
+      <div class="shop-header__crumb"><a href="/">Home</a> &nbsp;/&nbsp; Silver Jewelry</div>
       <div class="shop-header__row">
-        <h1 class="reveal"><span class="shop-header__line">Have a look.</span><span class="shop-header__line">Browse the <em>collection.</em></span></h1>
+        <h1 class="reveal"><span class="shop-header__line">Silver and</span><span class="shop-header__line"><em>stone.</em></span></h1>
         <p class="shop-header__sub reveal">
-          Made by hand. Nothing gets restocked — when it's gone, it's gone.
+          Silversmithed and set by hand. One piece, one owner — nothing gets restocked.
         </p>
       </div>
     </header>
 
-    {hasAnyLength && (
-      <div class="shop-sort-bar">
-        <div class="sort">
-          Sort by length
-          <select id="length-sort" aria-label="Sort by length">
-            <option value="default">Featured</option>
-            <option value="longest">Longest first</option>
-            <option value="shortest">Shortest first</option>
-          </select>
-        </div>
-      </div>
-    )}
-
     <section class="shop">
       {viewModels.length === 0 ? (
         <div class="empty is-show">
-          <h3>The shop is <em>empty</em>.</h3>
-          <p>New drops land every Tuesday — check back soon.</p>
+          <h3>Nothing in <em>silver</em> right now.</h3>
+          <p>New pieces drop a few times a year — check back soon.</p>
         </div>
       ) : (
         <div class="shop__grid" id="grid">
@@ -114,9 +79,7 @@ const hasAnyLength = viewModels.some((v) => v.lens.length > 0);
                 href={`/products/${v.slug}`}
                 class={`prod reveal${v.stock === 'oos' ? ' is-oos' : ''}`}
                 data-id={v.id}
-                data-cat={v.cat}
                 data-price={v.price}
-                data-len={v.lens.join(',')}
                 data-stock={v.stock}
                 data-stone={v.pieceId ?? ''}
                 data-idx={v.idx}
@@ -155,7 +118,7 @@ const hasAnyLength = viewModels.some((v) => v.lens.length > 0);
                   <span class="prod__price">{v.priceLabel}</span>
                 </div>
                 <div class="prod__meta">
-                  <span>{v.pieceId ?? '—'} · {v.lenStr}</span>
+                  <span>{v.pieceId ?? '—'}{v.lenStr ? ` · ${v.lenStr}` : ''}</span>
                   <span class={`prod__stock ${stockClass(v.stock)}`}>{stockLabel(v.stock)}</span>
                 </div>
               </a>
@@ -163,10 +126,6 @@ const hasAnyLength = viewModels.some((v) => v.lens.length > 0);
           })}
         </div>
       )}
-      <div class="empty" id="empty">
-        <h3>Nothing <em>like that</em> right now.</h3>
-        <p>Try loosening a filter — every piece is one of one, so selection is always thin.</p>
-      </div>
     </section>
 
     <Footer />
@@ -181,39 +140,6 @@ const hasAnyLength = viewModels.some((v) => v.lens.length > 0);
         }
       });
 
-      const sortSelect = document.getElementById('length-sort') as HTMLSelectElement | null;
-      if (sortSelect) {
-        const grid = document.getElementById('grid');
-        const cards = grid ? Array.from(grid.querySelectorAll<HTMLElement>('.prod')) : [];
-        const maxLen = (el: HTMLElement) => {
-          const raw = el.dataset.len ?? '';
-          const nums = raw.split(',').map(Number).filter((n) => Number.isFinite(n) && n > 0);
-          return nums.length ? Math.max(...nums) : 0;
-        };
-        sortSelect.addEventListener('change', () => {
-          if (!grid) return;
-          const v = sortSelect.value;
-          const sorted = cards.slice().sort((a, b) => {
-            if (v === 'longest') {
-              const al = maxLen(a), bl = maxLen(b);
-              if (al === 0 && bl === 0) return +a.dataset.idx! - +b.dataset.idx!;
-              if (al === 0) return 1;
-              if (bl === 0) return -1;
-              return bl - al;
-            }
-            if (v === 'shortest') {
-              const al = maxLen(a), bl = maxLen(b);
-              if (al === 0 && bl === 0) return +a.dataset.idx! - +b.dataset.idx!;
-              if (al === 0) return 1;
-              if (bl === 0) return -1;
-              return al - bl;
-            }
-            return +a.dataset.idx! - +b.dataset.idx!;
-          });
-          sorted.forEach((el) => grid.appendChild(el));
-        });
-      }
-
       const io = new IntersectionObserver(
         (entries) => {
           for (const e of entries) if (e.isIntersecting) e.target.classList.add('in');
@@ -224,11 +150,6 @@ const hasAnyLength = viewModels.some((v) => v.lens.length > 0);
     </script>
 
     <script>
-      // Live-sync product status. The page is statically generated, so any
-      // product bought after build time still shows as available in the grid
-      // until this script runs. We refetch status + sold_at on mount and
-      // update each card that has transitioned to sold (or moved out of
-      // published status).
       import { supabase } from '../lib/supabase';
 
       (async function () {
@@ -247,22 +168,15 @@ const hasAnyLength = viewModels.some((v) => v.lens.length > 0);
           const now = Date.now();
           const byId = new Map(data.map((p: any) => [p.id, p]));
 
-          let visibleCount = 0;
-
           cards.forEach((card) => {
             const p = byId.get(card.dataset.id!) as any | undefined;
-
-            // Not returned or no longer published → sold
             const isSold = !p || p.status !== 'published' || !!p.sold_at;
             const isReserved = !isSold && p.reserved_until && new Date(p.reserved_until).getTime() > now;
 
             const stock = isSold ? 'oos' : isReserved ? 'low' : 'ok';
             card.dataset.stock = stock;
-
-            // Update the sold visual state
             card.classList.toggle('is-oos', isSold);
 
-            // Tag pill: swap to "Sold" if needed; remove unrelated tags
             const existingTag = card.querySelector<HTMLElement>('.prod__tag');
             if (isSold) {
               if (existingTag) {
@@ -282,11 +196,9 @@ const hasAnyLength = viewModels.some((v) => v.lens.length > 0);
               existingTag.className = 'prod__tag';
             }
 
-            // Quick-add overlay text
             const quick = card.querySelector<HTMLElement>('.prod__quick > span:first-child');
             if (quick) quick.textContent = isSold ? 'Waitlist' : 'View piece';
 
-            // Meta row stock label
             const stockEl = card.querySelector<HTMLElement>('.prod__stock');
             if (stockEl) {
               stockEl.classList.remove('is-low', 'is-oos');
@@ -294,15 +206,9 @@ const hasAnyLength = viewModels.some((v) => v.lens.length > 0);
               else if (isReserved) { stockEl.textContent = 'Reserved'; stockEl.classList.add('is-low'); }
               else { stockEl.textContent = 'Available'; }
             }
-
-            if (!card.classList.contains('is-hidden')) visibleCount++;
           });
-
-          // Keep the count readout honest if the current filter shows everything.
-          const readout = document.getElementById('count-n');
-          if (readout) readout.textContent = String(visibleCount);
         } catch {
-          // network errors: leave the baked-in state alone, user can refresh
+          /* network errors: leave the baked-in state alone */
         }
       })();
     </script>

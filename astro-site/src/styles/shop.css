@@ -29,9 +29,10 @@
 .shop-header__crumb a { color: var(--c-ink-soft); border-bottom: 1px solid transparent; }
 .shop-header__crumb a:hover { border-color: currentColor; }
 .shop-header__row { display: grid; grid-template-columns: 1.4fr 1fr; gap: 64px; align-items: end; }
+.shop-header__line { display: block; white-space: nowrap; }
 .shop-header h1 {
   font-family: var(--f-serif);
-  font-size: clamp(72px, 11vw, 180px);
+  font-size: clamp(40px, 4.6vw, 64px);
   line-height: .95;
   letter-spacing: -0.015em;
   color: var(--c-ink);
@@ -316,7 +317,7 @@ body.card-detailed .shop .prod__meta { display: flex; }
   .shop { padding-left: 24px; padding-right: 24px; }
   .shop-nav { padding: 14px 24px; }
   .shop__grid { grid-template-columns: repeat(2, 1fr) !important; gap: 36px 14px; }
-  .shop-header h1 { font-size: 72px; }
+  .shop-header h1 { font-size: 56px; }
   .shop-nav__right a:not(.cart) { display: none; }
 }
 
@@ -328,6 +329,6 @@ body.card-detailed .shop .prod__meta { display: flex; }
   .shop-nav__logo img { height: 48px; }
   .shop-nav__right { gap: 10px; }
   .shop-nav__right .cart { padding: 7px 12px; font-size: 10px; }
-  .shop-header h1 { font-size: 56px; }
+  .shop-header h1 { font-size: 42px; }
   .shop__grid { gap: 28px 12px !important; }
 }

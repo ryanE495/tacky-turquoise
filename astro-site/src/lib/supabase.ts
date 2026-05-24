@@ -27,6 +27,7 @@ export interface Product {
   meta_description: string | null;
   piece_id: string | null;
   featured: boolean;
+  silver_jewelry: boolean;
   sold_at: string | null;
   reserved_until: string | null;
   published_at: string | null;
@@ -52,6 +53,40 @@ export async function fetchPublishedProducts(): Promise<ProductWithImages[]> {
     .from('products')
     .select('*, product_images(*)')
     .eq('status', 'published')
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return (data ?? []).map((p) => ({
+    ...p,
+    product_images: (p.product_images ?? []).sort(
+      (a: ProductImage, b: ProductImage) => a.display_order - b.display_order,
+    ),
+  })) as ProductWithImages[];
+}
+
+export async function fetchPublishedBeadedProducts(): Promise<ProductWithImages[]> {
+  const { data, error } = await supabase
+    .from('products')
+    .select('*, product_images(*)')
+    .eq('status', 'published')
+    .eq('silver_jewelry', false)
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return (data ?? []).map((p) => ({
+    ...p,
+    product_images: (p.product_images ?? []).sort(
+      (a: ProductImage, b: ProductImage) => a.display_order - b.display_order,
+    ),
+  })) as ProductWithImages[];
+}
+
+export async function fetchPublishedSilverProducts(): Promise<ProductWithImages[]> {
+  const { data, error } = await supabase
+    .from('products')
+    .select('*, product_images(*)')
+    .eq('status', 'published')
+    .eq('silver_jewelry', true)
     .order('created_at', { ascending: false });
 
   if (error) throw error;

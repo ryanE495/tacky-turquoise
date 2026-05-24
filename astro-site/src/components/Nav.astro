@@ -2,7 +2,7 @@
 import CartBadge from './CartBadge.astro';
 
 interface Props {
-  current?: 'shop' | 'story' | 'journal' | null;
+  current?: 'shop' | 'silver' | 'story' | 'journal' | null;
 }
 const { current = null } = Astro.props;
 const LOGO = 'https://ozxbjwvwchesjgebenbv.supabase.co/storage/v1/object/public/media/155d4695-2cd9-431d-9e3e-f971d48c1741.webp';
@@ -10,6 +10,7 @@ const LOGO = 'https://ozxbjwvwchesjgebenbv.supabase.co/storage/v1/object/public/
 <nav class="nav">
   <div class="nav__links">
     <a href="/shop" class:list={[current === 'shop' && 'is-active']}>Shop</a>
+    <a href="/silver-jewelry" class:list={[current === 'silver' && 'is-active']}>Silver</a>
     <a href="/our-story" class:list={[current === 'story' && 'is-active']}>Our Story</a>
   </div>
   <a href="/" class="nav__logo"><img src={LOGO} alt="Tacky Turquoise" /></a>
