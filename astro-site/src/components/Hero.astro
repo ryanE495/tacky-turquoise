@@ -16,6 +16,8 @@ const dropTargetISO = drop?.drops_at ?? '';
 const dropName = drop?.name ?? 'Next drop';
 const dropLocation = drop?.location ?? '';
 const shopUrl = drop?.shop_url || '/shop';
+// The countdown "Shop the drop" CTA always points at the sterling silver page.
+const dropShopUrl = '/silver-jewelry';
 
 function formatDropHuman(iso: string, name: string, location: string): string {
   if (!iso) return name;
@@ -69,7 +71,7 @@ const heroEyebrow = dropEnabled ? dropName : 'Tacky Turquoise';
           <span data-drop-human>{dropHuman}</span>
         </div>
         <h2 class="next-drop__title">Next <em>drop.</em></h2>
-        <a href={shopUrl} class="next-drop__cta" data-drop-cta>
+        <a href={dropShopUrl} class="next-drop__cta">
           <span>Shop the drop</span>
           <span class="arrow" aria-hidden="true">→</span>
         </a>
@@ -106,7 +108,6 @@ const heroEyebrow = dropEnabled ? dropName : 'Tacky Turquoise';
     };
     const live = document.getElementById('countdown-live');
     const humanEl = section.querySelector<HTMLElement>('[data-drop-human]');
-    const ctaEl = section.querySelector<HTMLAnchorElement>('[data-drop-cta]');
 
     let target = new Date(el.dataset.target!).getTime();
 
@@ -172,7 +173,6 @@ const heroEyebrow = dropEnabled ? dropName : 'Tacky Turquoise';
           tick();
         }
         if (humanEl) humanEl.textContent = formatHuman(row.drops_at, row.name ?? 'Next drop', row.location ?? null);
-        if (ctaEl && row.shop_url) ctaEl.href = row.shop_url;
       } catch {
         /* ignore — keep static values */
       }
