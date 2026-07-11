@@ -5,7 +5,7 @@ import ShopNewBanner from '../components/ShopNewBanner.astro';
 import MeetTheMaker from '../components/MeetTheMaker.astro';
 import EditorialBanner from '../components/EditorialBanner.astro';
 import FeaturedProducts from '../components/FeaturedProducts.astro';
-import Reviews from '../components/Reviews.astro';
+// import Reviews from '../components/Reviews.astro';
 import Footer from '../components/Footer.astro';
 ---
 <Base
@@ -23,9 +23,9 @@ import Footer from '../components/Footer.astro';
     variant="short"
     image="https://ozxbjwvwchesjgebenbv.supabase.co/storage/v1/object/public/media/7057ca61-0972-40fd-96d6-cb32781216b8.webp"
   />
-  <FeaturedProducts />
-  <Reviews />
-  <ShopNewBanner />
   <MeetTheMaker />
+  <FeaturedProducts />
+  {/* <Reviews /> */}
+  <ShopNewBanner />
   <Footer />
 </Base>

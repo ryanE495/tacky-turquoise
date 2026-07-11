@@ -11,11 +11,10 @@ const LOGO = 'https://ozxbjwvwchesjgebenbv.supabase.co/storage/v1/object/public/
   <div class="nav__links">
     <a href="/shop" class:list={[current === 'shop' && 'is-active']}>Shop</a>
     <a href="/silver-jewelry" class:list={[current === 'silver' && 'is-active']}>Silver</a>
-    <a href="/our-story" class:list={[current === 'story' && 'is-active']}>Our Story</a>
   </div>
   <a href="/" class="nav__logo"><img src={LOGO} alt="Tacky Turquoise" /></a>
   <div class="nav__right">
-    <a href="#" class:list={[current === 'journal' && 'is-active']}>Journal</a>
+    <a href="/our-story" class:list={[current === 'story' && 'is-active']}>Our Story</a>
     <CartBadge />
     <button type="button" class="mobile-menu-trigger" aria-label="Open menu" aria-controls="mobile-menu" aria-expanded="false">
       <span></span><span></span><span></span>

@@ -29,7 +29,7 @@ const isSold = !!product.sold_at;
 const isReserved = product.reserved_until && new Date(product.reserved_until).getTime() > now;
 const available = !isSold && !isReserved;
 
-const stockLabel = isSold ? 'Sold' : isReserved ? 'Reserved' : 'Available · 1 of 1';
+const stockLabel = isSold ? 'Sold' : isReserved ? 'Reserved' : 'Available';
 const stockClass = isSold ? 'details__stock--sold' : isReserved ? 'details__stock--reserved' : 'details__stock--available';
 
 const titleHtml = product.title.replace(/(\b\w+)$/, '<em>$1</em>');
@@ -152,9 +152,7 @@ const productJsonLd = {
         <div class="details">
           <div class="details__eyebrow">
             <span class="dot"></span>
-            {product.piece_id && <span class="piece-id">Piece {product.piece_id}</span>}
-            <span>·</span>
-            <span>1 of 1</span>
+            <span>Handmade · One of a kind</span>
           </div>
 
           <h1 class="details__name" set:html={titleHtml}></h1>
@@ -167,7 +165,6 @@ const productJsonLd = {
           {ledeText && <p class="details__lede">{ledeText}</p>}
 
           <ul class="details__specs">
-            {product.piece_id && <li><span>Piece ID</span><span>{product.piece_id}</span></li>}
             {product.length && <li><span>Length</span><span>{product.length}</span></li>}
             <li><span>Price</span><span>{formatPrice(product.price_cents)}</span></li>
             {product.featured && <li><span>Tag</span><span>Featured</span></li>}

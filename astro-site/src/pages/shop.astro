@@ -81,7 +81,7 @@ const hasAnyLength = viewModels.some((v) => v.lens.length > 0);
       <div class="shop-header__row">
         <h1 class="reveal"><span class="shop-header__line">Have a look.</span><span class="shop-header__line">Browse the <em>collection.</em></span></h1>
         <p class="shop-header__sub reveal">
-          Made by hand. Nothing gets restocked — when it's gone, it's gone.
+          I use German Silver Pearls that are hand-antiqued and polished by Navajo silversmiths — heavier than sterling and built to last. Then hand-strung by me.
         </p>
       </div>
     </header>
@@ -155,7 +155,6 @@ const hasAnyLength = viewModels.some((v) => v.lens.length > 0);
                   <span class="prod__price">{v.priceLabel}</span>
                 </div>
                 <div class="prod__meta">
-                  <span>{v.pieceId ?? '—'} · {v.lenStr}</span>
                   <span class={`prod__stock ${stockClass(v.stock)}`}>{stockLabel(v.stock)}</span>
                 </div>
               </a>

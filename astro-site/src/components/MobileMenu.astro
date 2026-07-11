@@ -6,7 +6,6 @@ const primary = [
   { num: '02', label: 'Shop ',      em: 'beaded',     href: '/shop' },
   { num: '03', label: 'Shop ',      em: 'silver',     href: '/silver-jewelry' },
   { num: '04', label: 'Our ',       em: 'story',      href: '/our-story' },
-  { num: '05', label: 'Journal',    em: null,         href: '#' },
 ];
 ---
 <div class="mm" id="mobile-menu" aria-hidden="true" role="dialog" aria-label="Menu">
@@ -29,7 +28,6 @@ const primary = [
   <nav class="mm__nav" aria-label="Primary">
     {primary.map((item, i) => (
       <a href={item.href} class="mm__link" style={`--i:${i}`}>
-        <span class="mm__link-num">{item.num}</span>
         <span class="mm__link-label">
           {item.label}{item.em && <em>{item.em}</em>}
         </span>

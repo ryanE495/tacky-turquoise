@@ -73,7 +73,6 @@ const titleHtml = (t: string) => t.replace(/(\b\w+)$/, '<em>$1</em>');
             <span class="prod__price">{v.priceLabel}</span>
           </div>
           <div class="prod__meta">
-            <span>{v.pieceId ?? '—'} · {v.lenStr}</span>
             <span class={`prod__stock ${stockClass(v.stock)}`}>{stockLabel(v.stock)}</span>
           </div>
         </a>

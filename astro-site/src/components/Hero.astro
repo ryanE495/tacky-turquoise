@@ -29,7 +29,7 @@ function formatDropHuman(iso: string, name: string, location: string): string {
 }
 
 const dropHuman = dropEnabled ? formatDropHuman(dropTargetISO, dropName, dropLocation) : '';
-const heroEyebrow = dropEnabled ? `Vol. 07 · ${dropName}` : `Vol. 07 · Tacky Turquoise`;
+const heroEyebrow = dropEnabled ? dropName : 'Tacky Turquoise';
 ---
 
 <header class="hero2" id="hero">

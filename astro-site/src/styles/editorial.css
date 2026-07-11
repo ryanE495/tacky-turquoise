@@ -151,8 +151,8 @@
   margin: 0 auto;
 }
 .maker__portrait {
-  aspect-ratio: 16/10;
-  max-height: 320px;
+  aspect-ratio: 3/4;
+  max-height: 520px;
   overflow: hidden;
   border-radius: 14px;
   box-shadow: 0 18px 36px rgba(30,42,45,.18);
@@ -193,8 +193,8 @@
   max-width: 46ch;
 }
 .maker__body-copy {
-  font-size: clamp(28px, 2.5vw, 36px);
-  line-height: 1.5;
+  font-size: clamp(15px, 1.1vw, 17px);
+  line-height: 1.65;
   color: var(--c-ink);
   max-width: 52ch;
 }
@@ -547,8 +547,8 @@
   .maker { padding: 64px 24px; }
   .maker__grid { gap: 32px; }
   .maker__title { line-height: 1; }
-  .maker__lede { font-size: 18px; }
-  .maker__body-copy { font-size: clamp(20px, 3vw, 24px); line-height: 1.55; }
+  .maker__lede { font-size: 16px; }
+  .maker__body-copy { font-size: 15px; line-height: 1.65; }
   .browse { padding: 56px 24px; gap: 36px; }
   .tagline-stack__list { gap: 2px; }
   .cat-ctas { padding: 64px 24px; }
@@ -571,8 +571,8 @@
   .maker { padding: 48px 16px; }
   .maker__portrait { border-radius: 10px; }
   .maker__title { font-size: clamp(40px, 11vw, 60px); }
-  .maker__lede { font-size: 16px; }
-  .maker__body-copy { font-size: clamp(18px, 4.6vw, 22px); }
+  .maker__lede { font-size: 15px; }
+  .maker__body-copy { font-size: 14px; }
   .maker__sign { flex-wrap: wrap; gap: 8px; }
   .browse { padding: 44px 16px; gap: 28px; }
   .tagline-stack__line { font-size: clamp(26px, 8vw, 44px); }

@@ -144,7 +144,6 @@ export function renderCartItemRow(item: CartItemData, opts: { showRemove?: boole
           <a class="cart-row__title" href="/products/${esc(item.slug)}">${esc(item.title)}</a>
           <span class="cart-row__price">${formatPrice(item.price_cents)}</span>
         </div>
-        ${item.piece_id ? `<div class="cart-row__id">Piece ${esc(item.piece_id)}</div>` : ''}
         ${specs.length ? `<div class="cart-row__specs">${specs.join(' <span aria-hidden="true">·</span> ')}</div>` : ''}
         ${showRemove ? `<button type="button" class="cart-row__remove" data-remove="${esc(item.id)}">Remove</button>` : ''}
       </div>
@@ -161,7 +160,6 @@ export function renderSummaryRow(item: CartItemData): string {
       </div>
       <div class="summary-row__body">
         <div class="summary-row__title">${esc(item.title)}</div>
-        ${item.piece_id ? `<div class="summary-row__id">Piece ${esc(item.piece_id)}</div>` : ''}
       </div>
       <div class="summary-row__price">${formatPrice(item.price_cents)}</div>
     </div>
