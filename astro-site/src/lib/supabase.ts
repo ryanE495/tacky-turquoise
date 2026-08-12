@@ -52,7 +52,10 @@ export async function fetchPublishedProducts(): Promise<ProductWithImages[]> {
   const { data, error } = await supabase
     .from('products')
     .select('*, product_images(*)')
-    .eq('status', 'published')
+    // Include sold pieces so their detail pages are generated too (sold cards
+    // link here and the page renders a "Sold" state). Archived-without-sale
+    // pieces stay excluded.
+    .or('status.eq.published,sold_at.not.is.null')
     .order('created_at', { ascending: false });
 
   if (error) throw error;
@@ -68,7 +71,10 @@ export async function fetchPublishedBeadedProducts(): Promise<ProductWithImages[
   const { data, error } = await supabase
     .from('products')
     .select('*, product_images(*)')
-    .eq('status', 'published')
+    // Include live pieces plus anything that has sold, so sold items still
+    // show (marked "Sold") for FOMO. Deliberately-archived pieces with no
+    // sold_at stay hidden.
+    .or('status.eq.published,sold_at.not.is.null')
     .eq('silver_jewelry', false)
     .order('created_at', { ascending: false });
 
@@ -85,7 +91,10 @@ export async function fetchPublishedSilverProducts(): Promise<ProductWithImages[
   const { data, error } = await supabase
     .from('products')
     .select('*, product_images(*)')
-    .eq('status', 'published')
+    // Include live pieces plus anything that has sold, so sold items still
+    // show (marked "Sold") for FOMO. Deliberately-archived pieces with no
+    // sold_at stay hidden.
+    .or('status.eq.published,sold_at.not.is.null')
     .eq('silver_jewelry', true)
     .order('created_at', { ascending: false });
 
