@@ -15,8 +15,7 @@ const dropEnabled = !!(drop && drop.enabled && drop.drops_at);
 const dropTargetISO = drop?.drops_at ?? '';
 const dropName = drop?.name ?? 'Next drop';
 const dropLocation = drop?.location ?? '';
-const shopUrl = drop?.shop_url || '/shop';
-// The countdown "Shop the drop" CTA always points at the sterling silver page.
+// The "Shop the drop" CTAs (hero + countdown) always point at the sterling silver page.
 const dropShopUrl = '/silver-jewelry';
 
 function formatDropHuman(iso: string, name: string, location: string): string {
@@ -49,7 +48,7 @@ const heroEyebrow = dropEnabled ? dropName : 'Tacky Turquoise';
       </h1>
 
       <div class="hero2__actions reveal reveal--d3">
-        <a href={shopUrl} class="hero2__cta">
+        <a href={dropShopUrl} class="hero2__cta">
           <span>Shop the drop</span>
           <span class="arrow" aria-hidden="true">→</span>
         </a>
