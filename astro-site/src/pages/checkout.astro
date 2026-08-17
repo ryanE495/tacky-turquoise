@@ -113,13 +113,6 @@ const US_STATES = [
 
   const API_BASE = import.meta.env.PUBLIC_API_URL;
 
-  interface ShippingQuote {
-    rate_id: string;
-    amount_cents: number;
-    service_level: string;
-    estimated_days: number;
-  }
-
   const loadingEl = document.getElementById('checkout-loading')!;
   const mainEl = document.getElementById('checkout-main')!;
   const summaryEl = document.getElementById('checkout-summary')!;
@@ -127,13 +120,6 @@ const US_STATES = [
   const formErrorEl = document.getElementById('form-error')!;
 
   let available: CartItemData[] = [];
-
-  // ---- shipping quote state ----
-  let shippingQuote: ShippingQuote | null = null;
-  let quoteLoading = false;
-  let quoteError: string | null = null;
-  let quoteAbortController: AbortController | null = null;
-  let quoteDebounce: number | null = null;
 
   function escapeHtml(s: string): string {
     return s
@@ -143,82 +129,10 @@ const US_STATES = [
       .replace(/"/g, '&quot;');
   }
 
-  function fieldValue(name: string): string {
-    const el = formEl.elements.namedItem(name) as HTMLInputElement | HTMLSelectElement | null;
-    return (el?.value ?? '').trim();
-  }
-
-  function isAddressComplete(): boolean {
-    return (
-      !!fieldValue('line1') &&
-      !!fieldValue('city') &&
-      !!fieldValue('state') &&
-      /^\d{5}(-\d{4})?$/.test(fieldValue('zip'))
-    );
-  }
-
   // ---- summary rendering ----
   function renderSummary() {
     const items = available;
     const subtotal = sumCents(items);
-    const addressComplete = isAddressComplete();
-
-    let shippingRowHtml = '';
-    let totalHtml = '';
-
-    if (quoteError) {
-      shippingRowHtml = `
-        <div class="order-summary__line" role="alert">
-          <span class="label">Shipping</span>
-          <span class="value" style="color: var(--c-coral); text-transform: none; letter-spacing: .02em;">${escapeHtml(quoteError)}</span>
-        </div>
-      `;
-    } else if (quoteLoading) {
-      shippingRowHtml = `
-        <div class="order-summary__line order-summary__line--muted">
-          <span class="label">Shipping</span>
-          <span class="value">Calculating<span aria-hidden="true">&hellip;</span></span>
-        </div>
-      `;
-      totalHtml = `
-        <div class="order-summary__total">
-          <span class="label">Estimated total</span>
-          <span class="value" style="opacity:.5">${formatPrice(subtotal)}</span>
-        </div>
-      `;
-    } else if (shippingQuote) {
-      const total = subtotal + shippingQuote.amount_cents;
-      const days = shippingQuote.estimated_days;
-      const daysText = days ? ' &middot; ~' + days + ' days' : '';
-      shippingRowHtml = `
-        <div class="order-summary__line">
-          <span class="label">
-            Shipping
-            <span class="value" style="display:block; font-size: 10px; color: var(--c-ink-soft); letter-spacing: .05em; text-transform: none; margin-top: 3px;">${escapeHtml(shippingQuote.service_level)}${daysText}</span>
-          </span>
-          <span class="value">${formatPrice(shippingQuote.amount_cents)}</span>
-        </div>
-        <div class="order-summary__line order-summary__line--muted">
-          <span class="label">Tax</span>
-          <span class="value">Calculated at payment</span>
-        </div>
-      `;
-      totalHtml = `
-        <div class="order-summary__total">
-          <span class="label">Estimated total</span>
-          <span class="value">${formatPrice(total)}</span>
-        </div>
-      `;
-    } else {
-      shippingRowHtml = `
-        <div class="order-summary__line order-summary__line--muted">
-          <span class="label">Shipping</span>
-          <span class="value">${addressComplete ? '—' : 'Enter address to calculate'}</span>
-        </div>
-      `;
-    }
-
-    const submitDisabled = !(shippingQuote && !quoteLoading && !quoteError);
 
     summaryEl.innerHTML = `
       <div class="order-summary">
@@ -231,10 +145,20 @@ const US_STATES = [
             <span class="label">Subtotal</span>
             <span class="value">${formatPrice(subtotal)}</span>
           </div>
-          ${shippingRowHtml}
+          <div class="order-summary__line">
+            <span class="label">Shipping</span>
+            <span class="value">Free</span>
+          </div>
+          <div class="order-summary__line order-summary__line--muted">
+            <span class="label">Tax</span>
+            <span class="value">Calculated at payment</span>
+          </div>
         </div>
-        ${totalHtml}
-        <button type="submit" form="checkout-form" id="submit-btn" class="order-summary__cta" ${submitDisabled ? 'disabled' : ''}>
+        <div class="order-summary__total">
+          <span class="label">Estimated total</span>
+          <span class="value">${formatPrice(subtotal)}</span>
+        </div>
+        <button type="submit" form="checkout-form" id="submit-btn" class="order-summary__cta">
           <span class="label">Complete order</span>
           <span class="arrow" aria-hidden="true">&rarr;</span>
         </button>
@@ -299,106 +223,6 @@ const US_STATES = [
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // ---- shipping quote ----
-  async function fetchShippingQuote() {
-    if (!isAddressComplete() || !available.length) return;
-
-    if (quoteAbortController) quoteAbortController.abort();
-    quoteAbortController = new AbortController();
-
-    quoteLoading = true;
-    quoteError = null;
-    renderSummary();
-
-    const payload = {
-      product_ids: available.map((a) => a.id),
-      shipping_address: {
-        name: fieldValue('full_name'),
-        street1: fieldValue('line1'),
-        street2: fieldValue('line2') || undefined,
-        city: fieldValue('city'),
-        state: fieldValue('state'),
-        zip: fieldValue('zip'),
-        country: 'US',
-      },
-    };
-
-    try {
-      const res = await fetch(`${API_BASE}/api/shipping/quote`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-        signal: quoteAbortController.signal,
-      });
-      const json = await res.json();
-
-      if (json?.ok && json.data) {
-        shippingQuote = {
-          rate_id: json.data.rate_id,
-          amount_cents: json.data.amount_cents,
-          service_level: json.data.service_level ?? 'Shipping',
-          estimated_days: json.data.estimated_days ?? 0,
-        };
-        quoteError = null;
-      } else if (!json?.ok && json?.error?.code === 'items_unavailable') {
-        const unavailableIds: string[] = (json.error.unavailable ?? []).map((u: { id: string }) => u.id);
-        removeManyFromCart(unavailableIds);
-        window.location.href = '/cart?unavailable=1';
-        return;
-      } else if (!json?.ok && (json?.error?.code === 'invalid_address' || json?.error?.code === 'no_rates_available')) {
-        shippingQuote = null;
-        quoteError = json.error.message || 'We could not calculate shipping for this address.';
-      } else {
-        shippingQuote = null;
-        quoteError = 'Could not calculate shipping. Please check your address and try again.';
-      }
-    } catch (err: any) {
-      if (err?.name === 'AbortError') return;
-      shippingQuote = null;
-      quoteError = 'Could not calculate shipping. Please check your address and try again.';
-    } finally {
-      quoteLoading = false;
-      quoteAbortController = null;
-      renderSummary();
-    }
-  }
-
-  function scheduleShippingQuote() {
-    if (quoteDebounce !== null) window.clearTimeout(quoteDebounce);
-    quoteDebounce = window.setTimeout(() => {
-      quoteDebounce = null;
-      void fetchShippingQuote();
-    }, 500);
-  }
-
-  function onAddressFieldChange() {
-    // Invalidate the existing quote immediately so the Complete button can not
-    // be submitted with a stale rate for a different address.
-    shippingQuote = null;
-    quoteError = null;
-    if (isAddressComplete()) {
-      quoteLoading = true;
-      renderSummary();
-      scheduleShippingQuote();
-    } else {
-      quoteLoading = false;
-      if (quoteAbortController) quoteAbortController.abort();
-      renderSummary();
-    }
-  }
-
-  const ADDRESS_FIELDS = ['line1', 'line2', 'city', 'state', 'zip', 'full_name'];
-  formEl.addEventListener('input', (e) => {
-    const t = e.target as HTMLElement;
-    const name = (t as HTMLInputElement).name;
-    if (name && ADDRESS_FIELDS.includes(name)) onAddressFieldChange();
-  });
-  formEl.addEventListener('change', (e) => {
-    const t = e.target as HTMLElement;
-    const name = (t as HTMLInputElement).name;
-    if (name && ADDRESS_FIELDS.includes(name)) onAddressFieldChange();
-  });
-
   formEl.addEventListener('blur', (e) => {
     const t = e.target as HTMLElement;
     if (t && (t.tagName === 'INPUT' || t.tagName === 'SELECT')) {
@@ -412,7 +236,6 @@ const US_STATES = [
     e.preventDefault();
     formErrorEl.innerHTML = '';
     if (!validateAll()) return;
-    if (!shippingQuote) return;
 
     const btn = document.getElementById('submit-btn') as HTMLButtonElement | null;
     if (!btn) return;
@@ -437,7 +260,6 @@ const US_STATES = [
         postal_code: String(data.get('zip') ?? '').trim(),
         country: 'US',
       },
-      shipping_rate_id: shippingQuote.rate_id,
       customer_notes: String(data.get('notes') ?? '').trim() || null,
     };
 
