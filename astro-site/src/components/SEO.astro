@@ -9,6 +9,8 @@ export interface Props {
   type?: 'website' | 'article' | 'product';
   canonical?: string;
   noindex?: boolean;
+  /** When true, emit no <link rel="canonical"> at all (page self-canonicalizes). */
+  noCanonical?: boolean;
 }
 
 const SITE_NAME = 'Tacky Turquoise';
@@ -16,7 +18,7 @@ const SITE_URL = 'https://tackyturquoise.com';
 const DEFAULT_TITLE = 'Tacky Turquoise — Handmade Turquoise Necklaces';
 const DEFAULT_DESCRIPTION =
   'Handmade, one-of-a-kind turquoise beaded necklaces. Each piece unique. Made in Colorado, shipped across the US.';
-const DEFAULT_OG_IMAGE = `${SITE_URL}/og-default.jpg`;
+const DEFAULT_OG_IMAGE = `${SITE_URL}/images/logo.png`;
 const THEME_COLOR = '#01edf8';
 
 const {
@@ -27,6 +29,7 @@ const {
   type = 'website',
   canonical,
   noindex = false,
+  noCanonical = false,
 } = Astro.props;
 
 const fullTitle = title ? `${title} | ${SITE_NAME}` : DEFAULT_TITLE;
@@ -35,7 +38,7 @@ const pageUrl = canonical ?? new URL(Astro.url.pathname, SITE_URL).toString();
 ---
 <title>{fullTitle}</title>
 <meta name="description" content={description} />
-<link rel="canonical" href={pageUrl} />
+{!noCanonical && <link rel="canonical" href={pageUrl} />}
 
 <meta property="og:type" content={type} />
 <meta property="og:title" content={fullTitle} />
@@ -55,6 +58,5 @@ const pageUrl = canonical ?? new URL(Astro.url.pathname, SITE_URL).toString();
 {noindex && <meta name="robots" content="noindex, nofollow" />}
 
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-<link rel="alternate icon" href="/favicon.ico" />
-<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<link rel="apple-touch-icon" href="/images/logo.png" />
 <meta name="theme-color" content={THEME_COLOR} />

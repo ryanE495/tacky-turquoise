@@ -52,16 +52,26 @@ const listedDate = (() => {
 })();
 
 const SITE_URL = 'https://tackyturquoise.com';
-const productUrl = `${SITE_URL}/products/${product.slug}`;
+// Trailing slash to match the real (directory-format) URL + sitemap.
+const productUrl = `${SITE_URL}/products/${product.slug}/`;
 const primaryImage = images[0]?.url ?? '';
 const allImageUrls = images.map((i) => i.url);
 
+// Meta description: prefer an explicit meta_description, then the product's own
+// (unique) description trimmed to ~155 chars, and only fall back to a generic
+// template as a last resort — so pages aren't near-duplicates of each other.
+function truncateAt(s: string, max: number): string {
+  const clean = s.replace(/\s+/g, ' ').trim();
+  if (clean.length <= max) return clean;
+  return clean.slice(0, max).replace(/\s+\S*$/, '').trimEnd() + '…';
+}
 const seoDescription =
   product.meta_description?.trim() ||
+  (description.trim() ? truncateAt(description, 155) : '') ||
   [
     product.title,
     product.length ? `${product.length} length` : null,
-    'Handmade one-of-a-kind turquoise necklace by Tacky Turquoise.',
+    'Handmade one-of-a-kind, made in Colorado.',
   ]
     .filter(Boolean)
     .join(' · ');
@@ -95,7 +105,7 @@ const productJsonLd = {
   image={primaryImage}
   imageAlt={`${product.title} — turquoise necklace`}
   type="product"
-  canonical={productUrl}
+  noCanonical={true}
 >
   <script is:inline type="application/ld+json" set:html={JSON.stringify(productJsonLd)} />
 
