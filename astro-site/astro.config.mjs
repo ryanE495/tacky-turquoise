@@ -11,7 +11,8 @@ export default defineConfig({
         !page.includes('/order/success') &&
         !page.includes('/order/failed') &&
         !page.includes('/checkout') &&
-        !page.includes('/cart'),
+        !page.includes('/cart') &&
+        !page.includes('/rss.xml'),
     }),
   ],
 });

@@ -1,0 +1,104 @@
+---
+import Base from '../../layouts/Base.astro';
+import Nav from '../../components/Nav.astro';
+import Footer from '../../components/Footer.astro';
+import { getCollection } from 'astro:content';
+import '../../styles/blog.css';
+
+// All published posts, newest first. draft: true is filtered at query time.
+const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+
+const [featured, ...rest] = posts;
+
+const fmtDate = (d: Date) =>
+  new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+---
+<Base
+  title="Blog"
+  description="Guides and field notes on turquoise, silver, and handmade jewelry from Tacky Turquoise — a small studio in Montrose, Colorado."
+>
+  <Nav />
+  <section class="blog-archive">
+    <div class="blog-archive__inner">
+      <div class="blog-archive__crumb"><a href="/">Home</a> &nbsp;/&nbsp; Blog</div>
+
+      <header class="blog-archive__head">
+        <h1>The <em>Journal.</em></h1>
+        <p class="blog-archive__lede">
+          Field notes on turquoise, silver, and the craft — how to pick, wear,
+          and care for one-of-a-kind pieces.
+        </p>
+      </header>
+
+      {posts.length === 0 ? (
+        <div class="blog-empty">
+          <h2>Nothing here <em>yet.</em></h2>
+          <p>New stories are on the way. In the meantime, <a href="/shop">browse the shop</a>.</p>
+        </div>
+      ) : (
+        <>
+          {featured && (
+            <a class="blog-feature" href={`/blog/${featured.slug}/`}>
+              {featured.data.heroImage ? (
+                <div class="blog-feature__media">
+                  <img
+                    src={featured.data.heroImage}
+                    alt={featured.data.heroAlt ?? featured.data.title}
+                    loading="lazy"
+                    decoding="async"
+                    width="1200"
+                    height="750"
+                  />
+                </div>
+              ) : (
+                <div class="blog-feature__media blog-feature__media--placeholder" aria-hidden="true"></div>
+              )}
+              <div class="blog-feature__body">
+                <div class="blog-card__meta">
+                  <span class="blog-card__badge">Latest</span>
+                  <time datetime={featured.data.pubDate.toISOString()}>{fmtDate(featured.data.pubDate)}</time>
+                </div>
+                <h2 class="blog-feature__title">{featured.data.title}</h2>
+                <p class="blog-feature__excerpt">{featured.data.description}</p>
+                <span class="blog-card__more">Read more →</span>
+              </div>
+            </a>
+          )}
+
+          {rest.length > 0 && (
+            <div class="blog-grid">
+              {rest.map((post) => (
+                <a class="blog-card" href={`/blog/${post.slug}/`}>
+                  {post.data.heroImage ? (
+                    <div class="blog-card__media">
+                      <img
+                        src={post.data.heroImage}
+                        alt={post.data.heroAlt ?? post.data.title}
+                        loading="lazy"
+                        decoding="async"
+                        width="800"
+                        height="500"
+                      />
+                    </div>
+                  ) : (
+                    <div class="blog-card__media blog-card__media--placeholder" aria-hidden="true"></div>
+                  )}
+                  <div class="blog-card__body">
+                    <div class="blog-card__meta">
+                      <time datetime={post.data.pubDate.toISOString()}>{fmtDate(post.data.pubDate)}</time>
+                    </div>
+                    <h3 class="blog-card__title">{post.data.title}</h3>
+                    <p class="blog-card__excerpt">{post.data.description}</p>
+                  </div>
+                </a>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  </section>
+  <Footer />
+</Base>
