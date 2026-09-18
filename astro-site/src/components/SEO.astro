@@ -33,7 +33,21 @@ const {
 } = Astro.props;
 
 const fullTitle = title ? `${title} | ${SITE_NAME}` : DEFAULT_TITLE;
-const ogImage = image ? getProductImageUrl(image, 'og') : DEFAULT_OG_IMAGE;
+
+// Resolve the OG image to an absolute URL. Supabase storage images get the
+// render/resize transform; anything else (local /images/..., or an already
+// absolute external URL) passes through untouched, resolved against the site.
+function resolveOgImage(img?: string): string {
+  if (!img) return DEFAULT_OG_IMAGE;
+  if (
+    img.includes('/storage/v1/object/public/') ||
+    img.includes('/storage/v1/render/image/')
+  ) {
+    return getProductImageUrl(img, 'og');
+  }
+  return new URL(img, SITE_URL).toString();
+}
+const ogImage = resolveOgImage(image);
 const pageUrl = canonical ?? new URL(Astro.url.pathname, SITE_URL).toString();
 ---
 <title>{fullTitle}</title>

@@ -1,0 +1,190 @@
+---
+import Base from '../../layouts/Base.astro';
+import Nav from '../../components/Nav.astro';
+import Footer from '../../components/Footer.astro';
+import { getCollection } from 'astro:content';
+import '../../styles/blog.css';
+
+export async function getStaticPaths() {
+  const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
+    (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+  );
+
+  // Newest-first, so index i-1 is the newer neighbour and i+1 the older one.
+  // Passed as props here to avoid re-querying the collection on every page.
+  return posts.map((post, i) => ({
+    params: { slug: post.slug },
+    props: {
+      post,
+      newer: posts[i - 1] ?? null,
+      older: posts[i + 1] ?? null,
+    },
+  }));
+}
+
+const { post, newer, older } = Astro.props;
+const { Content, headings } = await post.render();
+
+const { title, description, heroImage, heroAlt, pubDate, updatedDate, relatedProducts, faq } =
+  post.data;
+
+// Table of contents from the real h2 anchors — only worth showing past two.
+const tocItems = headings.filter((h) => h.depth === 2);
+const showToc = tocItems.length > 2;
+
+const SITE_URL = 'https://tackyturquoise.com';
+const postUrl = `${SITE_URL}/blog/${post.slug}/`;
+const heroAbsolute = heroImage
+  ? new URL(heroImage, SITE_URL).toString()
+  : `${SITE_URL}/images/logo.png`;
+
+const fmtDate = (d: Date) =>
+  new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+const blogPostingJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: title,
+  description,
+  datePublished: pubDate.toISOString(),
+  dateModified: (updatedDate ?? pubDate).toISOString(),
+  url: postUrl,
+  mainEntityOfPage: { '@type': 'WebPage', '@id': postUrl },
+  image: heroAbsolute,
+  author: { '@type': 'Organization', name: 'Tacky Turquoise', url: SITE_URL },
+  publisher: {
+    '@type': 'Organization',
+    name: 'Tacky Turquoise',
+    logo: { '@type': 'ImageObject', url: `${SITE_URL}/images/logo.png` },
+  },
+};
+
+// Separate FAQPage node (kept as its own script tag, not merged into an @graph).
+const faqJsonLd =
+  faq.length > 0
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: faq.map((item) => ({
+          '@type': 'Question',
+          name: item.q,
+          acceptedAnswer: { '@type': 'Answer', text: item.a },
+        })),
+      }
+    : null;
+---
+<Base
+  title={title}
+  description={description}
+  type="article"
+  image={heroImage}
+  imageAlt={heroAlt ?? title}
+  canonical={postUrl}
+>
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(blogPostingJsonLd)} />
+  {faqJsonLd && (
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(faqJsonLd)} />
+  )}
+
+  <Nav />
+
+  <article class="blog-post">
+    <div class="blog-post__inner">
+      <div class="blog-post__crumb"><a href="/blog/">Journal</a> &nbsp;/&nbsp; {title}</div>
+
+      <header class="blog-post__header">
+        <h1>{title}</h1>
+        <p class="blog-post__dek">{description}</p>
+        <div class="blog-post__meta">
+          <time datetime={pubDate.toISOString()}>{fmtDate(pubDate)}</time>
+          {updatedDate && <span class="blog-post__updated">Updated {fmtDate(updatedDate)}</span>}
+        </div>
+      </header>
+
+      {heroImage && (
+        <figure class="blog-post__hero">
+          <img
+            src={heroImage}
+            alt={heroAlt ?? title}
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+            width="1200"
+            height="800"
+          />
+        </figure>
+      )}
+
+      {showToc && (
+        <nav class="blog-post__toc" aria-label="Table of contents">
+          <p class="blog-post__toc-label">In this post</p>
+          <ol>
+            {tocItems.map((h) => (
+              <li><a href={`#${h.slug}`}>{h.text}</a></li>
+            ))}
+          </ol>
+        </nav>
+      )}
+
+      <div class="blog-post__body">
+        <Content />
+      </div>
+
+      {relatedProducts.length > 0 && (
+        <aside class="blog-related" aria-label="Shop related pieces">
+          <h2 class="blog-related__heading">Shop the <em>pieces</em></h2>
+          <div class="blog-related__grid">
+            {relatedProducts.map((p) => (
+              <a class="blog-related__card" href={p.href}>
+                <div class="blog-related__img">
+                  {p.image ? (
+                    <img src={p.image} alt={p.title} loading="lazy" decoding="async" width="600" height="750" />
+                  ) : (
+                    <div class="blog-related__img-placeholder" aria-hidden="true"></div>
+                  )}
+                </div>
+                <div class="blog-related__row">
+                  <span class="blog-related__name">{p.title}</span>
+                  {p.price != null && <span class="blog-related__price">{p.price}</span>}
+                </div>
+              </a>
+            ))}
+          </div>
+        </aside>
+      )}
+
+      {faq.length > 0 && (
+        <section class="blog-faq" aria-labelledby="faq-heading">
+          <h2 class="blog-faq__heading" id="faq-heading">Frequently asked questions</h2>
+          <div class="blog-faq__list">
+            {faq.map((item) => (
+              <details class="blog-faq__item">
+                <summary>{item.q}</summary>
+                <div class="blog-faq__answer"><p>{item.a}</p></div>
+              </details>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {(newer || older) && (
+        <nav class="blog-post__nav" aria-label="More posts">
+          {older ? (
+            <a class="blog-post__nav-link blog-post__nav-link--prev" href={`/blog/${older.slug}/`}>
+              <span class="blog-post__nav-dir">← Older</span>
+              <span class="blog-post__nav-title">{older.data.title}</span>
+            </a>
+          ) : <span></span>}
+          {newer ? (
+            <a class="blog-post__nav-link blog-post__nav-link--next" href={`/blog/${newer.slug}/`}>
+              <span class="blog-post__nav-dir">Newer →</span>
+              <span class="blog-post__nav-title">{newer.data.title}</span>
+            </a>
+          ) : <span></span>}
+        </nav>
+      )}
+    </div>
+  </article>
+
+  <Footer />
+</Base>

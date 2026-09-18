@@ -18,6 +18,16 @@ const blog = defineCollection({
     heroAlt: z.string().optional(),
     draft: z.boolean().default(false),
     tags: z.array(z.string()).default([]),
+    // Optional FAQ — renders visibly at the foot of the post AND emits FAQPage
+    // JSON-LD. Keep the on-page questions and the schema in sync (same array).
+    faq: z
+      .array(
+        z.object({
+          q: z.string(),
+          a: z.string(),
+        }),
+      )
+      .default([]),
     // How a post links into the shop. price is left loosely typed on purpose
     // (hand-authored — "$180" or 180 both accepted).
     relatedProducts: z
