@@ -393,6 +393,39 @@
   border-radius: 5px;
 }
 
+/* Tables scroll horizontally on narrow screens rather than breaking the page. */
+.blog-post__body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 2em 0;
+  font-size: 15px;
+  display: block;
+  overflow-x: auto;
+}
+.blog-post__body thead th {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: left;
+  color: var(--c-ink-soft);
+  border-bottom: 2px solid var(--c-line);
+  padding: 10px 14px;
+  white-space: nowrap;
+}
+.blog-post__body tbody td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--c-line);
+  vertical-align: top;
+  line-height: 1.45;
+  color: var(--c-ink-soft);
+}
+.blog-post__body tbody td:first-child {
+  font-weight: 600;
+  color: var(--c-ink);
+  white-space: nowrap;
+}
+
 /* ---- related products (conversion path — reads like the shop) ---- */
 .blog-related {
   margin-top: 72px;
