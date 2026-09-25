@@ -9,7 +9,7 @@ export async function GET(context) {
   return rss({
     title: 'Tacky Turquoise — Journal',
     description:
-      'Guides and field notes on turquoise, silver, and handmade jewelry from a small studio in Montrose, Colorado.',
+      'Guides and field notes on turquoise, silver, and handmade jewelry from a small studio in Colorado.',
     site: context.site,
     items: posts.map((post) => ({
       title: post.data.title,

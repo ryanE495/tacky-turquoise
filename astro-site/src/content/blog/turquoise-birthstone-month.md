@@ -130,7 +130,7 @@ The <a href="https://www.gia.org/gem-turquoise" target="_blank" rel="noopener">G
 - Price sanity-check. A large clean sky-blue Sleeping Beauty cabochon for $30 does not exist. That mine closed.
 - Buy sterling, not plated. A turquoise piece you intend to keep deserves a setting that will outlive the trend. Anything marked 925 is sterling.
 
-You can see how this plays out on real pieces in our [turquoise collection](/shop/) — every stone we set is identified by mine and treatment on the product page, which is the standard the whole category should be held to.
+You can see how this plays out on real pieces in our [turquoise collection](/silver-jewelry/) — every stone we set is identified by mine and treatment on the product page, which is the standard the whole category should be held to.
 
 ## A Turquoise Birthstone Month Gift Guide
 

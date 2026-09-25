@@ -72,7 +72,7 @@ import Footer from '../../components/Footer.astro';
       <p class="order-failed__body">Your cart has been saved. You can return to checkout anytime.</p>
       <div class="order-failed__actions">
         <a href="/cart" class="btn-primary">Return to cart <span aria-hidden="true">&rarr;</span></a>
-        <a href="/shop" class="btn-secondary">Keep shopping</a>
+        <a href="/silver-jewelry" class="btn-secondary">Keep shopping</a>
       </div>
     `;
   }
@@ -94,7 +94,7 @@ import Footer from '../../components/Footer.astro';
       <div class="cart-empty">
         <h2 class="cart-empty__title">Payment is <em>processing.</em></h2>
         <p class="cart-empty__sub">Your payment was accepted. We're finalizing the details — you'll receive an email shortly with your order confirmation.</p>
-        <a class="cart-empty__link" href="/shop">Keep browsing <span aria-hidden="true">&rarr;</span></a>
+        <a class="cart-empty__link" href="/silver-jewelry">Keep browsing <span aria-hidden="true">&rarr;</span></a>
       </div>
     `;
   }
@@ -178,7 +178,7 @@ import Footer from '../../components/Footer.astro';
       ${buildSummaryHtml(order)}
       ${buildShippingHtml(order)}
       <p class="order-success__outro">We'll email you at <a href="mailto:${esc(order.customer_email)}">${esc(order.customer_email)}</a> when it ships.</p>
-      <a href="/shop" class="order-summary__continue">Back to the shop &rarr;</a>
+      <a href="/silver-jewelry" class="order-summary__continue">Back to the shop &rarr;</a>
     `;
   }
 

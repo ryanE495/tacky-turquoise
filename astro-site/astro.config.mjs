@@ -12,7 +12,10 @@ export default defineConfig({
         !page.includes('/order/failed') &&
         !page.includes('/checkout') &&
         !page.includes('/cart') &&
-        !page.includes('/rss.xml'),
+        !page.includes('/rss.xml') &&
+        // Beaded jewelry is hidden for now — keep the beaded shop out of the
+        // sitemap. (Beaded product pages are noindexed at the page level.)
+        !page.includes('/shop'),
     }),
   ],
 });

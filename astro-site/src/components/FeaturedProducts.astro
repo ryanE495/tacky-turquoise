@@ -4,7 +4,9 @@ import { getProductImageUrl } from '../lib/image-url';
 
 const FALLBACK_IMG = 'https://bswmrfxdadcmuyhmsagv.supabase.co/storage/v1/object/public/portfolio-images/test.jpeg';
 
-const products = await fetchFeaturedProducts();
+// Beaded jewelry is hidden for now — only feature silver pieces.
+// Remove the filter to bring beaded featured products back.
+const products = (await fetchFeaturedProducts()).filter((p) => p.silver_jewelry);
 
 const now = Date.now();
 const viewModels = products.map((p) => {
@@ -34,7 +36,7 @@ const titleHtml = (t: string) => t.replace(/(\b\w+)$/, '<em>$1</em>');
     <header class="featured-products__head">
       <div class="featured-products__eyebrow">◆ Featured</div>
       <h2 class="featured-products__title">From the <em>studio.</em></h2>
-      <a href="/shop" class="featured-products__all">Shop all <span aria-hidden="true">→</span></a>
+      <a href="/silver-jewelry" class="featured-products__all">Shop all <span aria-hidden="true">→</span></a>
     </header>
     <div class="shop__grid featured-products__grid" data-featured-grid>
       {viewModels.map((v) => (

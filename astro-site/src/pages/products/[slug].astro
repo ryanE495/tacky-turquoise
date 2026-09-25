@@ -106,6 +106,7 @@ const productJsonLd = {
   imageAlt={`${product.title} — turquoise necklace`}
   type="product"
   noCanonical={true}
+  noindex={!product.silver_jewelry}
 >
   <script is:inline type="application/ld+json" set:html={JSON.stringify(productJsonLd)} />
 
@@ -197,7 +198,7 @@ const productJsonLd = {
           </div>
 
           <div class="details__trust">
-            <div class="trust-item"><strong>Made by hand</strong>Montrose, CO</div>
+            <div class="trust-item"><strong>Made by hand</strong>Colorado</div>
           </div>
         </div>
       </div>

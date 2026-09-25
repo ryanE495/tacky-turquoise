@@ -3,9 +3,10 @@ const LOGO = 'https://ozxbjwvwchesjgebenbv.supabase.co/storage/v1/object/public/
 
 const primary = [
   { num: '01', label: 'Home',       em: null,         href: '/' },
-  { num: '02', label: 'Shop ',      em: 'beaded',     href: '/shop' },
-  { num: '03', label: 'Shop ',      em: 'silver',     href: '/silver-jewelry' },
-  { num: '04', label: 'Our ',       em: 'story',      href: '/our-story' },
+  // Beaded shop hidden for now — restore this entry to bring it back.
+  // { num: '02', label: 'Shop ',      em: 'beaded',     href: '/shop' },
+  { num: '02', label: 'Shop ',      em: 'silver',     href: '/silver-jewelry' },
+  { num: '03', label: 'Our ',       em: 'story',      href: '/our-story' },
 ];
 ---
 <div class="mm" id="mobile-menu" aria-hidden="true" role="dialog" aria-label="Menu">
@@ -22,7 +23,7 @@ const primary = [
 
   <div class="mm__eyebrow">
     <span class="dot"></span>
-    <span>◆ Made in Montrose, CO · Spring Drop ’26</span>
+    <span>◆ Made in Colorado · Spring Drop ’26</span>
   </div>
 
   <nav class="mm__nav" aria-label="Primary">
@@ -44,7 +45,7 @@ const primary = [
   </div>
 
   <div class="mm__foot">
-    <div class="mm__coords">38.4783° N · 107.8762° W</div>
+    <div class="mm__coords">Handmade in Colorado</div>
     <div class="mm__socials">
       <a href="#" aria-label="Instagram">IG</a>
       <span aria-hidden="true">·</span>

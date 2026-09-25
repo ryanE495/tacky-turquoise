@@ -1,16 +1,17 @@
 ---
 import Base from '../layouts/Base.astro';
 import Hero from '../components/Hero.astro';
-import ShopNewBanner from '../components/ShopNewBanner.astro';
 import MeetTheMaker from '../components/MeetTheMaker.astro';
 import EditorialBanner from '../components/EditorialBanner.astro';
 import FeaturedProducts from '../components/FeaturedProducts.astro';
 // import Reviews from '../components/Reviews.astro';
+// Beaded shop banner hidden for now — restore this import + <ShopNewBanner /> below to bring it back.
+// import ShopNewBanner from '../components/ShopNewBanner.astro';
 import Footer from '../components/Footer.astro';
 ---
 <Base
   title="Handmade Turquoise Necklaces"
-  description="One-of-a-kind beaded turquoise necklaces, handmade in Colorado. Each piece is unique. Shipped across the US."
+  description="One-of-a-kind handmade turquoise and sterling silver jewelry, made in Colorado. Each piece is unique. Shipped across the US."
 >
   <Hero />
   <EditorialBanner
@@ -26,6 +27,6 @@ import Footer from '../components/Footer.astro';
   <MeetTheMaker />
   <FeaturedProducts />
   {/* <Reviews /> */}
-  <ShopNewBanner />
+  {/* <ShopNewBanner /> — beaded shop hidden for now */}
   <Footer />
 </Base>
